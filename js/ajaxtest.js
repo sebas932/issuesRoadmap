@@ -30,14 +30,20 @@ function loadJSON() {
             insert.innerHTML = '';
             results = "";
             jsonObj.forEach(function(entry) {
+                // Opening row.
                 results += "<tr>";
+                // Id
                 results += "<td><a href='" + entry.html_url + "'>" + entry.number + "</a></td>";
-                results += "<td>" + entry.title + "</td>";
+                
+                // Milestone
                 if (entry.milestone) {
                     results += "<td>" + entry.milestone.title + "</td>";
                 } else {
                     results += "<td>None</td>";
-                }
+                }                
+                // Title
+                results += "<td>" + entry.title + "</td>";
+                // Closing row.
                 results += "</tr>";
 
             });
