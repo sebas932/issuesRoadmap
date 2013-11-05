@@ -48,17 +48,17 @@ function loadJSON() {
 
             });
             insert.innerHTML = results;
-            $(function() { 
-        // call the tablesorter plugin 
-        $("table").tablesorter();
-    });
+            $(function() {
+                // call the tablesorter plugin 
+                $("#list").tablesorter();
+            });
 
-            
+
         }
     }
     http_request.open("GET", data_file, true);
     http_request.send();
-    
+
 }
 
 
