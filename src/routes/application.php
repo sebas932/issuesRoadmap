@@ -29,13 +29,14 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 
 // Github REST API example
 function github_request($url){
+    global $settings;
     $ch = curl_init();
 
     // Basic Authentication with token
     // https://developer.github.com/v3/auth/
     // https://github.com/blog/1509-personal-api-tokens
     // https://github.com/settings/tokens
-    $access = 'sebas932:0e0462b814fec32fa53896163d3030401b39d314';
+    $access = $settings['github']['username'].':'.$settings['github']['token'];
 
     curl_setopt($ch, CURLOPT_URL, $url);
     //curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml'));

@@ -1,3 +1,4 @@
 src/config/db.php
+src/config/settings.php
 public/data/
 public/export/
