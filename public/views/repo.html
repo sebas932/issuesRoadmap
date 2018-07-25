@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+        <title>Issues GitHub - {{ repoInfo.full_name }}</title>
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+
+    </head>
+    <body>
+      <div class="container">
+        <p class="display-3">Issues Roadmap</p>
+        <div class="form-group">
+          <div class="">
+            <img src="{{ repoInfo.owner.avatar_url }}" class="rounded float-left" width="55" alt="">
+            <h4>{{ repoInfo.full_name }}</h4>
+            <p>{{ repoInfo.description }}</p>
+          </div>
+        </div>
+        <p>Issues found: {{ issues|length }}</p>
+        <table id="issuesList" class="table table-striped table-bordered" style="width:100%">
+          <thead>
+            <tr>
+              <th>Milestone</th>
+              <th>GitHub ID</th>
+              <th>Title</th>
+              <th>Responsible</th>
+              <th>State</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for issue in issues %}
+              <tr>
+                <td> {{ issue.milestone.title }} </td>
+                <td> {{ issue.number }} </td>
+                <td> {{ issue.title }} </td>
+                <td> {{ issue.assignee.login }}</td>
+                <td> {{ issue.state }} </td>
+              </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+      <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+
+    </body>
+
+</html>
