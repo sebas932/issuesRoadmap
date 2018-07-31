@@ -10,28 +10,37 @@ $app->get('/', function ($request, $response, $args) {
 })->setName('index');
 
 $app->get('/{organization}/{repo}', function ($request, $response, $args) {
-  $GITHUB_URL = 'https://api.github.com';
-  $organization = $request->getAttribute('organization');
+
+  $GH_URL = 'https://api.github.com';
+  $org = $request->getAttribute('organization');
   $repo = $request->getAttribute('repo');
+  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
+  $milestoneID = $request->getQueryParam('milestoneID');
 
-  $query = $GITHUB_URL.'/repos/'.$organization.'/'.$repo;
-  $repoInfo = github_request($query);
+  $repoInfo = api_request($repoURL);
+  $milestones = api_request($repoURL.'/milestones');
 
-  $query = $GITHUB_URL.'/repos/'.$organization.'/'.$repo.'/issues?state=all&milestone=36';
-  $issues = github_request($query);
+
+  if($milestoneID == ""){
+    $issues = api_request($repoURL.'/issues?state=all&per_page=100');
+  }else{
+    $issues = api_request($repoURL.'/issues?state=all&per_page=100&milestone='.$milestoneID);
+  }
+
 
   return $this->view->render($response, 'repo.html', [
     'repoInfo' => $repoInfo,
-    'issues' => $issues
+    'milestones' => $milestones,
+    'issues' => $issues,
+    'milestoneID' => $milestoneID
   ]);
 })->setName('repo');
 
 
 // Github REST API example
-function github_request($url){
+function api_request($url){
     global $settings;
     $ch = curl_init();
-
     // Basic Authentication with token
     // https://developer.github.com/v3/auth/
     // https://github.com/blog/1509-personal-api-tokens
