@@ -10,37 +10,42 @@ $app->get('/', function ($request, $response, $args) {
 })->setName('index');
 
 $app->get('/{organization}/{repo}', function ($request, $response, $args) {
-  ini_set('max_execution_time', 300);
+  ini_set('max_execution_time', 600);
 
   $GH_URL = 'https://api.github.com';
   $org = $request->getAttribute('organization');
   $repo = $request->getAttribute('repo');
   $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
+
+  // Parameters
   $milestoneID = $request->getQueryParam('milestoneID');
+  $milestoneID = (isset($milestoneID)? $milestoneID : "");
   $zenhubActive = $request->getQueryParam('zenhubActive') == "true";
+  $state = $request->getQueryParam('state');
+  $state = (isset($state)? $state : "open");
 
   $repoInfo = githubRequest($repoURL);
   $milestones = githubRequest($repoURL.'/milestones');
-
   $allIssues = array();
   $stopRequest = false;
   $page = 1;
   $perPage = 100;
 
+
   // Get all issues from Github
   do {
+    $query = $repoURL.'/issues?state='.$state.'&page='.$page.'&per_page='.$perPage;
     if(($milestoneID != "")){
-      $issues = githubRequest($repoURL.'/issues?state=all&page='.$page.'&per_page='.$perPage.'&milestone='.$milestoneID);
-    }else{
-      $issues = githubRequest($repoURL.'/issues?state=all&page='.$page.'&per_page='.$perPage);
+      $query = $query.'&milestone='.$milestoneID;
     }
+    $issues = githubRequest($query);
     if(count($issues) < $perPage){
       $stopRequest = true;
     }else{
       $page = $page + 1;
     }
     $allIssues =  array_merge($allIssues, $issues);
-} while ($stopRequest == false);
+  } while ($stopRequest == false);
 
   // Get Issues information from Zenhub
   if($zenhubActive){
@@ -58,7 +63,9 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
     'issues' => $allIssues,
     'milestoneID' => $milestoneID,
     'pages' => $page,
-    'zenhubActive' => $zenhubActive
+    'zenhubActive' => $zenhubActive,
+    'state' => $state,
+    'query' => $query
   ]);
 })->setName('repo');
 

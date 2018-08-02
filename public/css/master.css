@@ -7,4 +7,5 @@ table#issuesList {
   background: #f1f1f1;
   border-radius: 0;
   border-bottom: 2px solid;
+  margin-bottom: 2px;
 }
