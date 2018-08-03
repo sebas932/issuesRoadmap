@@ -4,7 +4,7 @@
         <title>Issues GitHub - {{ repoInfo.full_name }}</title>
 
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
 
         <link rel="stylesheet" href="../../css/master.css">
@@ -73,10 +73,12 @@
         <table id="issuesList" class="table table-striped table-bordered" style="width:100%">
           <thead>
             <tr>
-              <th>Milestone</th>
               <th>GitHub ID</th>
+              <th>Milestone</th>
               <th>Title</th>
-              <th>Label(s)</th>
+              <!-- <th>Label(s)</th> -->
+              <th>Type</th>
+              <th>Priority</th>
               <th>Responsible</th>
               <th>Status</th>
               {% if zenhubActive %}
@@ -90,16 +92,20 @@
           <tbody>
             {% for issue in issues %}
               <tr>
+                <td class="text-center"> <a href="{{ issue.html_url}}">{{ issue.number }} </a> </td>
                 <td>
                   {{ issue.milestone.title }}
                 </td>
-                <td class="text-center"> <a href="{{ issue.html_url}}">{{ issue.number }} </a> </td>
                 <td>{{ issue.title }}</td>
+                <!--
                 <td>
                   {% for label in issue.labels %}
                     <span class="badge " style="border-bottom-color: #{{ label.color }};">{{ label.name }}</span>
                   {% endfor %}
                 </td>
+                 -->
+                <td class="text-center"> {{ issue.type }} </td>
+                <td class="text-center"> {{ issue.priority }} </td>
                 <td class="text-center"> {{ issue.assignee.login }}</td>
                 <td class="text-center"> {{ issue.state}}</td>
                 {% if zenhubActive %}

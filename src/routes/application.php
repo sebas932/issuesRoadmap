@@ -48,14 +48,19 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   } while ($stopRequest == false);
 
   // Get Issues information from Zenhub
-  if($zenhubActive){
-    $issuesZenhub = array();
+
+    $issuesTemp = array();
     foreach ($allIssues as $issue) {
-        $issue['zenhub'] = zenhubRequest('https://api.zenhub.io/p1/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
-        $issuesZenhub[] = $issue;
+        if($zenhubActive){
+          $issue['zenhub'] = zenhubRequest('https://api.zenhub.io/p1/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
+          }
+        $issue['priority'] = getLabelValue($issue['labels'], "Priority");
+        $issue['type'] = getLabelValue($issue['labels'], "Type");
+
+        $issuesTemp[] = $issue;
     }
-    $allIssues = $issuesZenhub;
-  }
+    $allIssues = $issuesTemp;
+
 
   return $this->view->render($response, 'repo.html', [
     'repoInfo' => $repoInfo,
@@ -69,7 +74,13 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   ]);
 })->setName('repo');
 
-
+function getLabelValue($arrayLabels, $string){
+  foreach ($arrayLabels as $label) {
+    if (strpos($label['name'], $string) !== false) {
+      return explode('-',$label['name'])[1] ;
+    }
+  }
+}
 // Github REST API
 function githubRequest($url){
     global $settings;
