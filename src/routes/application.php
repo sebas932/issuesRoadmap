@@ -151,7 +151,7 @@ function freshdeskRequest($url){
 
     // curl -v -u sebas932:IlRyulZofEubvo7 -X GET 'https://marlo.freshdesk.com/api/v2/tickets'
 
-    $access = "s.amariles@cgiar.org:157oceanic";
+    $access = $settings['freshdesk']['username'].":".$settings['freshdesk']['password'];
 
     curl_setopt($ch, CURLOPT_URL, $url);
     //curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Authentication-Token: '.$access));
