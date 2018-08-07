@@ -74,6 +74,19 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   ]);
 })->setName('repo');
 
+
+$app->get('/freshdesk', function ($request, $response, $args) {
+
+  $tickets = freshdeskRequest("https://marlo.freshdesk.com/api/v2/tickets");
+
+  return $this->view->render($response, 'freshdesk.html', [
+    'tickets' => $tickets,
+  ]);
+})->setName('freshdesk');
+
+
+/****************************************************************************/
+
 function getLabelValue($arrayLabels, $string){
   foreach ($arrayLabels as $label) {
     if (strpos($label['name'], $string) !== false) {
@@ -117,6 +130,31 @@ function zenhubRequest($url){
 
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Authentication-Token: '.$access));
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Agent smith');
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_USERPWD, $access);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    $result = json_decode(trim($output), true);
+    return $result;
+}
+
+// Freshdesk REST API
+function freshdeskRequest($url){
+    global $settings;
+    $ch = curl_init();
+    // Basic Authentication with token
+
+    // curl -v -u sebas932:IlRyulZofEubvo7 -X GET 'https://marlo.freshdesk.com/api/v2/tickets'
+
+    $access = "s.amariles@cgiar.org:157oceanic";
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    //curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Authentication-Token: '.$access));
     curl_setopt($ch, CURLOPT_USERAGENT, 'Agent smith');
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_USERPWD, $access);
