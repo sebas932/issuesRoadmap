@@ -65,17 +65,65 @@
           </form>
         </div>
         <div class="rightBar">
-          <!-- <div class="row">
+          <div class="row">
             <div class="col m3">
               <div class="card">
                 <div class="card-content">
-                  <p>Total issues found</p>
-                  <span class="card-title"><strong>{{ issues|length }}</strong></span>
+                  <span class="card-title"> Total Issues</span>
+                  <p><h3>{{ issues|length }}</h3></p>
                 </div>
               </div>
             </div>
-          </div> -->
-          <p>Total issues found: <strong>{{ issues|length }}</strong></p>
+
+            <div class="col m3">
+              <div class="card">
+                <div class="card-content">
+                  <span class="card-title">Issues by Type</strong></span>
+                  <p>
+                    <ul>
+                      {% for key, value in chartsData.types %}
+                        <li>{{ key }}: {{ value }}</li>
+                      {% endfor %}
+                    </ul>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col m3">
+              <div class="card">
+                <div class="card-content">
+                  <span class="card-title">Issues by priority</strong></span>
+                  <p>
+                    <ul>
+                      {% for key, value in chartsData.priorities %}
+                        <li>{{ key }}: {{ value }}</li>
+                      {% endfor %}
+                    </ul>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col m3">
+              <div class="card">
+                <div class="card-content">
+                  <span class="card-title">Issues by responsible</strong></span>
+                  <p>
+                    <ul>
+                      {% for key, value in chartsData.users %}
+                        <li>{{ key }}: {{ value }}</li>
+                      {% endfor %}
+                    </ul>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- <p>Total issues found: <strong>{{ issues|length }}</strong></p> -->
+
+
 
           <table id="issuesList" class="table table-striped table-bordered striped" style="width:100%">
             <thead>

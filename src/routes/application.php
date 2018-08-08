@@ -11,6 +11,7 @@ $app->get('/', function ($request, $response, $args) {
 
 $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
+  error_reporting( error_reporting() & ~E_NOTICE );
 
   $GH_URL = 'https://api.github.com';
   $org = $request->getAttribute('organization');
@@ -50,12 +51,18 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   // Get Issues information from Zenhub
 
     $issuesTemp = array();
+    $chartsData = array();
+
     foreach ($allIssues as $issue) {
         if($zenhubActive){
           $issue['zenhub'] = zenhubRequest('https://api.zenhub.io/p1/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
           }
         $issue['priority'] = getLabelValue($issue['labels'], "Priority");
         $issue['type'] = getLabelValue($issue['labels'], "Type");
+
+        $chartsData['priorities'][$issue['priority']]++;
+        $chartsData['types'][$issue['type']]++;
+        $chartsData['users'][$issue['assignee']['login']]++;
 
         $issuesTemp[] = $issue;
     }
@@ -70,7 +77,8 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
     'pages' => $page,
     'zenhubActive' => $zenhubActive,
     'state' => $state,
-    'query' => $query
+    'query' => $query,
+    'chartsData' => $chartsData
   ]);
 })->setName('repo');
 
@@ -86,6 +94,7 @@ $app->get('/freshdesk', function ($request, $response, $args) {
 
 
 /****************************************************************************/
+
 
 function getLabelValue($arrayLabels, $string){
   foreach ($arrayLabels as $label) {
