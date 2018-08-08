@@ -54,15 +54,21 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
     $chartsData = array();
 
     foreach ($allIssues as $issue) {
-        if($zenhubActive){
-          $issue['zenhub'] = zenhubRequest('https://api.zenhub.io/p1/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
-          }
+
         $issue['priority'] = getLabelValue($issue['labels'], "Priority");
         $issue['type'] = getLabelValue($issue['labels'], "Type");
+
 
         $chartsData['priorities'][$issue['priority']]++;
         $chartsData['types'][$issue['type']]++;
         $chartsData['users'][$issue['assignee']['login']]++;
+
+        if($zenhubActive){
+          $issue['zenhub'] = zenhubRequest('https://api.zenhub.io/p1/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
+          $chartsData['states'][$issue['zenhub']['pipeline']['name']]++;
+        }else{
+          $chartsData['states'][$issue['state']]++;
+        }
 
         $issuesTemp[] = $issue;
     }

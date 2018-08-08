@@ -66,56 +66,53 @@
         </div>
         <div class="rightBar">
           <div class="row">
-            <div class="col m3">
-              <div class="card">
+
+            <div class="col m2">
+              <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title"> Total Issues</span>
+                  <span class="card-title"> Total</span>
                   <p><h3>{{ issues|length }}</h3></p>
                 </div>
               </div>
             </div>
 
-            <div class="col m3">
-              <div class="card">
+            <div class="col m2">
+              <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">Issues by Type</strong></span>
-                  <p>
-                    <ul>
-                      {% for key, value in chartsData.types %}
-                        <li>{{ key }}: {{ value }}</li>
-                      {% endfor %}
-                    </ul>
-                  </p>
+                  <span class="card-title">State</strong></span>
+                  <canvas id="chartCanvas-0"></canvas>
+                  <code class="chartData-0 hide"> {{ chartsData.states|json_encode }} </code>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="col m2">
+              <div class="card topIndicator">
+                <div class="card-content">
+                  <span class="card-title">Type</strong></span>
+                  <canvas id="chartCanvas-1"></canvas>
+                  <code class="chartData-1 hide"> {{ chartsData.types|json_encode }} </code>
                 </div>
               </div>
             </div>
 
             <div class="col m3">
-              <div class="card">
+              <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">Issues by priority</strong></span>
-                  <p>
-                    <ul>
-                      {% for key, value in chartsData.priorities %}
-                        <li>{{ key }}: {{ value }}</li>
-                      {% endfor %}
-                    </ul>
-                  </p>
+                  <span class="card-title">Priority</strong></span>
+                  <canvas id="chartCanvas-2"></canvas>
+                  <code class="chartData-2 hide"> {{ chartsData.priorities|json_encode }} </code>
                 </div>
               </div>
             </div>
 
             <div class="col m3">
-              <div class="card">
+              <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">Issues by responsible</strong></span>
-                  <p>
-                    <ul>
-                      {% for key, value in chartsData.users %}
-                        <li>{{ key }}: {{ value }}</li>
-                      {% endfor %}
-                    </ul>
-                  </p>
+                  <span class="card-title">Responsible</strong></span>
+                  <canvas id="chartCanvas-3"></canvas>
+                  <code class="chartData-3 hide"> {{ chartsData.users|json_encode }} </code>
                 </div>
               </div>
             </div>
@@ -189,6 +186,7 @@
       <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
       <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" charset="utf-8"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
       <script src="../../js/main.js" charset="utf-8"></script>
 
     </body>

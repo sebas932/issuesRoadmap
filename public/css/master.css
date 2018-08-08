@@ -36,6 +36,12 @@ table#issuesList {
   margin-bottom: 2px;
 }
 
+.topIndicator{
+  height: 250px;
+}
+.topIndicator canvas{
+  height: 100%;
+}
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
 nav {
