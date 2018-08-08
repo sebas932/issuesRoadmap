@@ -1,11 +1,53 @@
+body {
+  background-color: #fcfcfc;
+}
+
+header {
+  /* border-bottom: 1px solid #ccc; */
+  /* position: fixed; */
+}
+
+table td{
+  border: 1px solid #f0f0f0;
+}
+
 table#issuesList {
   font-size: 0.85em;
 }
 
-.badge{
+.leftBar {
+  padding: 2em;
+  position: fixed;
+  width: 340px;
+}
+
+.rightBar {
+  padding: 1em;
+  margin-left: 340px;
+  border-left: 1px solid #ccc;
+  background-color: #fff;
+}
+
+.badge {
   opacity: 0.9;
   background: #f1f1f1;
   border-radius: 0;
   border-bottom: 2px solid;
   margin-bottom: 2px;
+}
+
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+
+nav {
+  background-color: #2196F3;
+}
+
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+
+p {
+  margin-bottom: 5px;
 }
