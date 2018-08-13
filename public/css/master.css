@@ -18,12 +18,12 @@ table#issuesList {
 .leftBar {
   padding: 2em;
   position: fixed;
-  width: 340px;
+  width: 320px;
 }
 
 .rightBar {
   padding: 1em;
-  margin-left: 340px;
+  margin-left: 320px;
   border-left: 1px solid #ccc;
   background-color: #fff;
 }
@@ -40,7 +40,9 @@ table#issuesList {
   height: 250px;
 }
 .topIndicator canvas{
-  height: 100%;
+  position: relative;
+  height:40vh;
+  width:80vw;
 }
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 

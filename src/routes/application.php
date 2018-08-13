@@ -14,6 +14,7 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   error_reporting( error_reporting() & ~E_NOTICE );
 
   $GH_URL = 'https://api.github.com';
+  $ZH_URL = 'https://api.zenhub.io/p1';
   $org = $request->getAttribute('organization');
   $repo = $request->getAttribute('repo');
   $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
@@ -49,30 +50,27 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   } while ($stopRequest == false);
 
   // Get Issues information from Zenhub
+  $issuesTemp = array();
+  $chartsData = array();
 
-    $issuesTemp = array();
-    $chartsData = array();
+  foreach ($allIssues as $issue) {
+      $issue['priority'] = getLabelValue($issue['labels'], "Priority");
+      $issue['type'] = getLabelValue($issue['labels'], "Type");
 
-    foreach ($allIssues as $issue) {
+      $chartsData['priorities'][$issue['priority']]++;
+      $chartsData['types'][$issue['type']]++;
+      $chartsData['users'][$issue['assignee']['login']]++;
 
-        $issue['priority'] = getLabelValue($issue['labels'], "Priority");
-        $issue['type'] = getLabelValue($issue['labels'], "Type");
+      if($zenhubActive){
+        $issue['zenhub'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
+        $chartsData['states'][$issue['zenhub']['pipeline']['name']]++;
+      }else{
+        $chartsData['states'][$issue['state']]++;
+      }
 
-
-        $chartsData['priorities'][$issue['priority']]++;
-        $chartsData['types'][$issue['type']]++;
-        $chartsData['users'][$issue['assignee']['login']]++;
-
-        if($zenhubActive){
-          $issue['zenhub'] = zenhubRequest('https://api.zenhub.io/p1/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
-          $chartsData['states'][$issue['zenhub']['pipeline']['name']]++;
-        }else{
-          $chartsData['states'][$issue['state']]++;
-        }
-
-        $issuesTemp[] = $issue;
-    }
-    $allIssues = $issuesTemp;
+      $issuesTemp[] = $issue;
+  }
+  $allIssues = $issuesTemp;
 
 
   return $this->view->render($response, 'repo.html', [
