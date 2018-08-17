@@ -173,7 +173,10 @@
                   <td>
                     {{ issue.milestone.title }}
                   </td>
-                  <td>{{ issue.title }}</td>
+                  <td>
+
+                    {{ issue.title }}
+                  </td>
                   <!--
                   <td>
                     {% for label in issue.labels %}
@@ -187,7 +190,7 @@
                   <td class="center-align"> {{ issue.state}}</td>
                   {% if zenhubActive %}
                     <td class="center-align"> {{ issue.zenhub.estimate.value }} </td>
-                    <td class="center-align"> {{ issue.zenhub.pipeline.name }} </td>
+                    <td class="center-align pipeline-{{ issue.zenhub.pipeline.name|replace(' ', '-')|replace('/', '-') }}"> {{ issue.zenhub.pipeline.name }} </td>
                   {% endif %}
                   <td> <small>{{ issue.created_at }}</small> </td>
                   <td> <small>{{ issue.updated_at }}</small> </td>
