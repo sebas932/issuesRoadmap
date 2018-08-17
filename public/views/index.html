@@ -7,33 +7,71 @@
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
       <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-      <link rel="stylesheet" href="../../css/master.css">
+      <link rel="stylesheet" href="./css/master.css">
 
 
     </head>
     <body>
-      <div class="container">
-        <h2 class="display-1">Issues GitHub</h2>
-        <div class="form-group">
-          <strong>Repositories:</strong>
-          <ul>
-            <li><a href="./CCAFS/MARLO">Github CCAFS/MARLO</a></li>
-          </ul>
+      <header>
+        <div class="container">
+          <h2 class="display-1">Issues GitHub</h2>
         </div>
+      </header>
 
-        <div class="form-group">
-          <div class="card">
-            <h4 class="title">Sprint v4.2.11</h4>
+      <div class="container">
+        <h5>Find Github/Zenhub Issues:</h5>
+        <ul class="collection">
+          <li class="collection-item"><a href="./CCAFS/MARLO"> CCAFS/MARLO </a> </li>
+        </ul>
+      </div>
+
+      <div class="container">
+        <h5>Sprints:</h5>
+        <div class="row">
+          {% for sprint in sprints %}
+          <div class="col s6 m4">
+            <div class="card">
+              <div class="card-content ">
+                <span class="card-title">{{ sprint.github.title }}</span>
+                <p>Due on: {{ sprint.github.due_on|date("M/d/Y") }}</p>
+              </div>
+              <div class="card-action right-align">
+                <a href="{{ sprint.github.html_url }}" target="_blank">Github URL</a>
+                <a href="{{ sprint.report_url }}">See Report</a>
+              </div>
+            </div>
           </div>
+          {% endfor %}
         </div>
       </div>
+
+      <footer class="page-footer">
+        <div class="container">
+          <div class="row">
+            <div class="col l6 s12">
+              <p class="grey-text text-lighten-4">Monitoring your issues and take decisions</p>
+            </div>
+            <div class="col l4 offset-l2 s12">
+              <ul>
+                <li><a class="grey-text text-lighten-3" href="https://github.com/sebas932/issuesRoadmap">Github repository</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="footer-copyright">
+          <div class="container">
+          © 2018 Copyright Guybrush
+          <a class="grey-text text-lighten-4 right" href="http://guybrush.info/">Guybrush.info</a>
+          </div>
+        </div>
+      </footer>
 
       <!-- Compiled and minified JavaScript -->
       <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
       <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" charset="utf-8"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-      <script src="../../js/main.js" charset="utf-8"></script>
+      <script src="./js/main.js" charset="utf-8"></script>
 
     </body>
 

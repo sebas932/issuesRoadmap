@@ -33,9 +33,9 @@ $(document).ready( function () {
   // Type
   setChart('1', 'doughnut', true);
   // Priority
-  setChart('2', 'bar', false);
+  setChart('2', 'horizontalBar', false);
   // Responsible
-  setChart('3', 'horizontalBar', false);
+  setChart('3', 'bar', false);
 
 });
 
@@ -59,6 +59,7 @@ function setChart(id, chartType, displayLegend){
       },
       options: {
         //responsive: false,
+        maintainAspectRatio: false,
         legend: {
            display: displayLegend,
            position: "left",
@@ -72,5 +73,7 @@ function setChart(id, chartType, displayLegend){
 
 function getColor(label){
   var string = $.trim(label).toLowerCase();
-  return colorMap[string] || '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+  return colorMap[string] || '#'+'0123456789abcdef'.split('').map(function(v,i,a){
+    return i>5 ? null : a[Math.floor(Math.random()*16)] }
+  ).join('');
 }

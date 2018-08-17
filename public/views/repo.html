@@ -11,14 +11,20 @@
 
     </head>
     <body>
-      <div class="">
+      <header>
+        <div class="container">
+          <h2 class="display-1">Issues GitHub</h2>
 
-        <div class="leftBar">
           <!-- Go back  -->
           <div class="form-group">
             <a class="waves-effect waves-light btn" href="./../"><i class="material-icons left">arrow_back</i> Go Back</a>
           </div>
+        </div>
+      </header>
 
+      <div class="">
+        <div class="leftBar">
+          {% if hideFilters != true %}
           <!-- Repo Logo -->
           <div class="form-group">
             <div class="center-align">
@@ -69,8 +75,18 @@
             <br>
             <button class="btn btn-outline-secondary right" type="submit">Find Issues</button>
           </form>
+          {% endif %}
         </div>
-        <div class="rightBar">
+
+
+        <div class="rightBar {{ hideFilters? 'hideblock': 'show' }}">
+          {% if milestoneID is not empty %}
+          <div class="left-align">
+            <h5>{{ milestoneInfo.title }}</h5>
+            <p>Due on: {{ milestoneInfo.due_on|date("M/d/Y") }}</p>
+          </div>
+          {% endif%}
+
           <div class="row">
 
             <div class="col m2">
@@ -78,48 +94,48 @@
                 <div class="card-content">
                   <span class="card-title"> Total</span>
                   <p><h3>{{ issues|length }}</h3></p>
+                  {% if zenhubActive %}
+                    <p><strong> Total Estimated</strong> <br>{{ chartsData.totalEstimate }}</p>
+                  {% endif %}
                 </div>
               </div>
             </div>
 
-            <div class="col m2">
+            <div class="col m3">
               <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">State</strong></span>
-                  <canvas id="chartCanvas-0"></canvas>
+                  <span class="card-title">State</strong> {% if zenhubActive %} <br><small>(Estimated by State)</small>{% endif %}</span>
+                  <div class="chart-container"><canvas id="chartCanvas-0"></canvas></div>
                   <code class="chartData-0 hide"> {{ chartsData.states|json_encode }} </code>
                 </div>
               </div>
             </div>
 
-
-            <div class="col m2">
+            <div class="col m3">
               <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">Type</strong></span>
-                  <div class="chart-container" style="position: relative; width:100%">
-                    <canvas id="chartCanvas-1"></canvas>
-                  </div>
+                  <span class="card-title">Type</strong> {% if zenhubActive %} <br><small>(Estimated by Type)</small>{% endif %}</span>
+                  <div class="chart-container"><canvas id="chartCanvas-1"></canvas></div>
                   <code class="chartData-1 hide"> {{ chartsData.types|json_encode }} </code>
                 </div>
               </div>
             </div>
 
-            <div class="col m3">
+            <div class="col m2">
               <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">Responsible</strong></span>
-                  <canvas id="chartCanvas-3"></canvas>
+                  <span class="card-title">Responsible</strong> {% if zenhubActive %} <br><small>(Estimated by Responsible)</small>{% endif %}</span>
+                  <div class="chart-container"><canvas id="chartCanvas-3"></canvas></div>
                   <code class="chartData-3 hide"> {{ chartsData.users|json_encode }} </code>
                 </div>
               </div>
             </div>
 
-            <div class="col m3">
+            <div class="col m2">
               <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">Priority</strong></span>
-                  <canvas id="chartCanvas-2"></canvas>
+                  <span class="card-title">Priority</strong> {% if zenhubActive %} <br><small>(Estimated by Priority)</small>{% endif %}</span>
+                  <div class="chart-container"><canvas id="chartCanvas-2"></canvas></div>
                   <code class="chartData-2 hide"> {{ chartsData.priorities|json_encode }} </code>
                 </div>
               </div>
@@ -167,7 +183,7 @@
                    -->
                   <td class="center-align"> {{ issue.type }} </td>
                   <td class="center-align"> {{ issue.priority }} </td>
-                  <td class="center-align"> {{ issue.assignee.login }}</td>
+                  <td class="center-align"> {{ issue.assigneAcronym }} </td>
                   <td class="center-align"> {{ issue.state}}</td>
                   {% if zenhubActive %}
                     <td class="center-align"> {{ issue.zenhub.estimate.value }} </td>

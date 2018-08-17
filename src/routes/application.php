@@ -2,12 +2,44 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-// Render Twig template in route
+/******************************************************************************
+*******************************    HOME   *************************************
+******************************************************************************/
 $app->get('/', function ($request, $response, $args) {
+  $GH_URL = 'https://api.github.com';
+  //milestoneID=37&zenhubActive=true&state=all
+  $sprints = array(
+    array(
+      'org' => 'CCAFS',
+      'repo' => 'MARLO',
+      'milestoneID' => 37,
+    ),
+    array(
+      'org' => 'CCAFS',
+      'repo' => 'MARLO',
+      'milestoneID' => 36,
+    )
+  );
+
+  $sprintsTemp = array();
+  foreach ($sprints as $s) {
+    $repo = $s['org'].'/'.$s['repo'];
+    $query = $GH_URL.'/repos/'.$repo.'/milestones/'.$s['milestoneID'];
+    $s['github'] = githubRequest($query);
+    $s['report_url'] = './'.$repo.'?milestoneID='.$s['milestoneID'].'&zenhubActive=true&state=all&hideFilters=true';
+    $sprintsTemp[]= $s;
+  }
+
+  //print_r($sprintsTemp);
 
   return $this->view->render($response, 'index.html', [
+    'sprints' => $sprintsTemp,
   ]);
 })->setName('index');
+
+/******************************************************************************
+*******************************   REPORT  *************************************
+******************************************************************************/
 
 $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
@@ -23,11 +55,15 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   $milestoneID = $request->getQueryParam('milestoneID');
   $milestoneID = (isset($milestoneID)? $milestoneID : "");
   $zenhubActive = $request->getQueryParam('zenhubActive') == "true";
+  $hideFilters = $request->getQueryParam('hideFilters') == "true";
   $state = $request->getQueryParam('state');
   $state = (isset($state)? $state : "open");
 
   $repoInfo = githubRequest($repoURL);
   $milestones = githubRequest($repoURL.'/milestones');
+  if(($milestoneID != "")){
+    $milestoneInfo = githubRequest($repoURL.'/milestones/'.$milestoneID);
+  }
   $allIssues = array();
   $stopRequest = false;
   $page = 1;
@@ -54,18 +90,30 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   $chartsData = array();
 
   foreach ($allIssues as $issue) {
+
+
       $issue['priority'] = getLabelValue($issue['labels'], "Priority");
       $issue['type'] = getLabelValue($issue['labels'], "Type");
 
-      $chartsData['priorities'][$issue['priority']]++;
-      $chartsData['types'][$issue['type']]++;
-      $chartsData['users'][$issue['assignee']['login']]++;
+      $issue['assigneAcronym'] = getAcronyms($issue['assignee']['login']);
+
+
 
       if($zenhubActive){
         $issue['zenhub'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
-        $chartsData['states'][$issue['zenhub']['pipeline']['name']]++;
+
+        $estimate = $issue['zenhub']['estimate']['value'];
+
+        $chartsData['totalEstimate'] += $estimate;
+        $chartsData['priorities'][$issue['priority']] += $estimate;
+        $chartsData['types'][$issue['type']] += $estimate;
+        $chartsData['users'][$issue['assigneAcronym']] += $estimate;
+        $chartsData['states'][$issue['zenhub']['pipeline']['name']] += $estimate;
       }else{
         $chartsData['states'][$issue['state']]++;
+        $chartsData['priorities'][$issue['priority']]++;
+        $chartsData['types'][$issue['type']]++;
+        $chartsData['users'][$issue['assigneAcronym']]++;
       }
 
       $issuesTemp[] = $issue;
@@ -78,9 +126,11 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
     'milestones' => $milestones,
     'issues' => $allIssues,
     'milestoneID' => $milestoneID,
+    'milestoneInfo' => $milestoneInfo,
     'pages' => $page,
     'zenhubActive' => $zenhubActive,
     'state' => $state,
+    'hideFilters' => $hideFilters,
     'query' => $query,
     'chartsData' => $chartsData
   ]);
@@ -177,6 +227,34 @@ function freshdeskRequest($url){
     curl_close($ch);
     $result = json_decode(trim($output), true);
     return $result;
+}
+
+function getAcronyms($s){
+    if($s != null){
+      $users['sebas932'] = 'SA';
+      $users['AndresFVR'] = 'AV';
+      $users['HermesJim'] = 'HJ';
+      $users['mralmanzar'] = 'MRA';
+      $users['cgarcia9106'] = 'CG';
+      $users['jhanzuro'] = 'JZ';
+      $users['Grant-Lay'] = 'GL';
+      $users['jurodca'] = 'JR';
+      $users['htobon'] = 'HT';
+      $users['kenjitm'] = 'KT';
+      $users['anamp70'] = 'AMP';
+      $users['carios1usb'] = 'CR';
+
+      $acronym = $users[$s];
+
+      if ($acronym != null){
+        return $acronym;
+      }else{
+        return $s;
+      }
+    }else{
+      return "Not Defined";
+    }
+
 }
 
 ?>

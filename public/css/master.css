@@ -1,5 +1,7 @@
 body {
   background-color: #fcfcfc;
+  padding: 0;
+  margin: 0;
 }
 
 header {
@@ -7,7 +9,7 @@ header {
   /* position: fixed; */
 }
 
-table td{
+table td {
   border: 1px solid #f0f0f0;
 }
 
@@ -28,6 +30,10 @@ table#issuesList {
   background-color: #fff;
 }
 
+.rightBar.hideblock {
+  margin-left: 0px;
+}
+
 .badge {
   opacity: 0.9;
   background: #f1f1f1;
@@ -36,26 +42,42 @@ table#issuesList {
   margin-bottom: 2px;
 }
 
-.topIndicator{
+.topIndicator {
   height: 250px;
 }
-.topIndicator canvas{
-  position: relative;
-  height:40vh;
-  width:80vw;
-}
-/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
+.topIndicator canvas {
+  position: relative;
+  height: 40vh;
+  width: 80vw;
+}
+
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 nav {
   background-color: #2196F3;
 }
-
 
 .form-group {
   margin-bottom: 10px;
 }
 
-
 p {
   margin-bottom: 5px;
+}
+
+footer.page-footer {
+  background-color: #009688;
+}
+
+header {
+  background-color: #009688;
+  padding: 6px 0;
+  margin: 0;
+  color: #fff;
+}
+
+
+.chart-container {
+  position: relative;
+  height: 148px;
 }
