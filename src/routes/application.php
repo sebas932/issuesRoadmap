@@ -91,13 +91,9 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 
   foreach ($allIssues as $issue) {
 
-
       $issue['priority'] = getLabelValue($issue['labels'], "Priority");
       $issue['type'] = getLabelValue($issue['labels'], "Type");
-
       $issue['assigneAcronym'] = getAcronyms($issue['assignee']['login']);
-
-
 
       if($zenhubActive){
         $issue['zenhub'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
@@ -136,13 +132,46 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   ]);
 })->setName('repo');
 
-
+/******************************************************************************
+******************************   FRESHDESK  ***********************************
+******************************************************************************/
 $app->get('/freshdesk', function ($request, $response, $args) {
+  //ini_set('max_execution_time', 600);
+  $startDate = "2018-07-01";
+  $endDate= "2018-08-17";
 
-  $tickets = freshdeskRequest("https://marlo.freshdesk.com/api/v2/tickets");
+  $allTickets = array();
+  $stopRequest = false;
+  $page = 1;
+  $perPage = 30;
 
+  $query = 'https://marlo.freshdesk.com/api/v2/tickets';
+  //$query += '?page='.$page;
+  //print_r($query);
+  //$allTickets = freshdeskRequest($query);
+
+  //print_r($allTickets);
+
+  // Get all issues from Github
+  /*
+  do {
+    $query = 'https://marlo.freshdesk.com/api/v2/tickets';
+    //$query += '?page='.$page;
+    //print_r($query);
+    $tickets = freshdeskRequest($query);
+    //print_r($tickets);
+    if(count($tickets) < $perPage){
+      $stopRequest = true;
+    }else{
+      $page = $page + 1;
+    }
+    $allTickets = array_merge($allTickets, $tickets);
+  } while ($stopRequest == false);
+  */
+
+  //print_r($allTickets);
   return $this->view->render($response, 'freshdesk.html', [
-    'tickets' => $tickets,
+    'tickets' => $allTickets
   ]);
 })->setName('freshdesk');
 
