@@ -8,26 +8,21 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get('/', function ($request, $response, $args) {
   $GH_URL = 'https://api.github.com';
   //milestoneID=37&zenhubActive=true&state=all
-  $sprints = array(
-    array(
-      'org' => 'CCAFS',
-      'repo' => 'MARLO',
-      'milestoneID' => 37,
-    ),
-    array(
-      'org' => 'CCAFS',
-      'repo' => 'MARLO',
-      'milestoneID' => 36,
-    )
-  );
+
+
+  $org = 'CCAFS';
+  $repo = 'MARLO';
+  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
+
+  $sprints = githubRequest($repoURL.'/milestones?state=all&per_page=100&direction=desc');
+
 
   $sprintsTemp = array();
   foreach ($sprints as $s) {
-    $repo = $s['org'].'/'.$s['repo'];
-    $query = $GH_URL.'/repos/'.$repo.'/milestones/'.$s['milestoneID'];
+    $query = $repoURL.'/milestones/'.$s['number'];
     $s['github'] = githubRequest($query);
-    $s['report_url'] = './'.$repo.'?milestoneID='.$s['milestoneID'].'&zenhubActive=true&state=all&hideFilters=true';
-    $sprintsTemp[]= $s;
+    $s['report_url'] = './'.$org.'/'.$repo.'?milestoneID='.$s['number'].'&zenhubActive=true&state=all&hideFilters=true';
+    $sprintsTemp[$s['state']][]= $s;
   }
 
   //print_r($sprintsTemp);

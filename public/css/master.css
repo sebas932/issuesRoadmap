@@ -76,8 +76,31 @@ header {
   color: #fff;
 }
 
-
 .chart-container {
   position: relative;
   height: 148px;
+}
+
+.sprintCard {
+  height: 165px;
+}
+
+.pipeline-In-Progress {
+  background-color: #f5ce34;
+  color: #fff;
+}
+
+.pipeline-Closed {
+  background-color: #27ae60;
+  color: #fff;
+}
+
+.pipeline-New-Issues {
+  background-color: #ef685a;
+  color: #fff;
+}
+
+.pipeline-Review-QA {
+  background-color: #5fa9da;
+  color: #fff;
 }
