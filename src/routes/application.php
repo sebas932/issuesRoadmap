@@ -235,7 +235,7 @@ function freshdeskRequest($url){
     global $settings;
     $ch = curl_init();
     // Basic Authentication with token
-    // curl -v -u sebas932:IlRyulZofEubvo7 -X GET 'https://marlo.freshdesk.com/api/v2/tickets'
+    // curl -v -u user:password -X GET 'https://marlo.freshdesk.com/api/v2/tickets'
     $access = $settings['freshdesk']['username'].":".$settings['freshdesk']['password'];
 
     curl_setopt($ch, CURLOPT_URL, $url);
