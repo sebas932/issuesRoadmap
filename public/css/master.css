@@ -108,13 +108,14 @@ header {
 table#issuesList {
   font-size: 0.8em;
 }
-
+.milestoneDescription {
+  overflow: auto;
+}
 
 .topIndicatorBig {
-  overflow: auto;
   height: 350px;
 }
 
-.topIndicatorBig h5{
-  margin: 0;
+.milestoneDescription h5{
+  margin: 0 !important;
 }

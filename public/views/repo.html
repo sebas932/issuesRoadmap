@@ -7,7 +7,7 @@
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
         <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-        <link rel="stylesheet" href="../../css/master.css?20190117">
+        <link rel="stylesheet" href="../../css/master.css?20190117_2">
 
     </head>
     <body>
@@ -82,9 +82,33 @@
         <div class="rightBar {{ hideFilters? 'hideblock': 'show' }}">
           {% if milestoneID is not empty %}
           <div class="row">
+
+
+            <div class="col m2">
+              <div class="card topIndicator">
+                <div class="card-content">
+                  <span class="card-title"> Total Issues</span>
+                  <p><h3>{{ issues|length }}</h3></p>
+                  {% if zenhubActive %}
+                    <p><strong> Total Estimated</strong> <br>{{ chartsData.totalEstimate }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="col m3">
+              <div class="card topIndicator">
+                <div class="card-content">
+                  <span class="card-title">Status </strong> {% if zenhubActive %} <br><small>(Estimated by State)</small>{% endif %}</span>
+                  <div class="chart-container"><canvas id="chartCanvas-0"></canvas></div>
+                  <code class="chartData-0 hide"> {{ chartsData.states|json_encode }} </code>
+                </div>
+              </div>
+            </div>
+
             <div class="col m7">
-              <div class="milestoneDescription card-panel topIndicatorBig">
-                <a class="btn-floating btn-small cyan pulse right" href="https://github.com/{{ org }}/{{ repoInfo.name }}/milestones/{{ milestoneInfo.number }}/edit" target="_blank">
+              <div class="milestoneDescription card-panel topIndicator">
+                <a class="btn-floating btn-small cyan right" href="https://github.com/{{ org }}/{{ repoInfo.name }}/milestones/{{ milestoneInfo.number }}/edit" target="_blank">
                   <i class="material-icons">edit</i>
                 </a>
                 <h5>{{ milestoneInfo.title }}</h5>
@@ -98,34 +122,12 @@
               </div>
             </div>
 
-            <div class="col m5">
-              <div class="card topIndicatorBig">
-                <div class="card-content">
-                  <span class="card-title"> Total</span>
-                  <p><h3>{{ issues|length }}</h3></p>
-                  {% if zenhubActive %}
-                    <p><strong> Total Estimated</strong> <br>{{ chartsData.totalEstimate }}</p>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-
           </div>
           {% endif%}
 
           <div class="row">
 
-            <div class="col m3">
-              <div class="card topIndicator">
-                <div class="card-content">
-                  <span class="card-title">Status </strong> {% if zenhubActive %} <br><small>(Estimated by State)</small>{% endif %}</span>
-                  <div class="chart-container"><canvas id="chartCanvas-0"></canvas></div>
-                  <code class="chartData-0 hide"> {{ chartsData.states|json_encode }} </code>
-                </div>
-              </div>
-            </div>
-
-            <div class="col m3">
+            <div class="col m4">
               <div class="card topIndicator">
                 <div class="card-content">
                   <span class="card-title">Type</strong> {% if zenhubActive %} <br><small>(Estimated by Type)</small>{% endif %}</span>
@@ -135,7 +137,7 @@
               </div>
             </div>
 
-            <div class="col m3">
+            <div class="col m4">
               <div class="card topIndicator">
                 <div class="card-content">
                   <span class="card-title">Responsible</strong> {% if zenhubActive %} <br><small>(Estimated by Responsible)</small>{% endif %}</span>
@@ -145,7 +147,7 @@
               </div>
             </div>
 
-            <div class="col m3">
+            <div class="col m4">
               <div class="card topIndicator">
                 <div class="card-content">
                   <span class="card-title">Priority</strong> {% if zenhubActive %} <br><small>(Estimated by Priority)</small>{% endif %}</span>
@@ -190,6 +192,8 @@
                   <td>
 
                     {{ issue.title }}
+
+                    {{ issue.pull_request }}
                   </td>
                   <!--
                   <td>
