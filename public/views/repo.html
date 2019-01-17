@@ -7,7 +7,7 @@
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
         <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-        <link rel="stylesheet" href="../../css/master.css">
+        <link rel="stylesheet" href="../../css/master.css?20190117">
 
     </head>
     <body>
@@ -81,16 +81,25 @@
 
         <div class="rightBar {{ hideFilters? 'hideblock': 'show' }}">
           {% if milestoneID is not empty %}
-          <div class="left-align">
-            <h5>{{ milestoneInfo.title }}</h5>
-            <p>Due on: {{ milestoneInfo.due_on|date("M/d/Y") }}</p>
-          </div>
-          {% endif%}
-
           <div class="row">
+            <div class="col m7">
+              <div class="milestoneDescription card-panel topIndicatorBig">
+                <a class="btn-floating btn-small cyan pulse right" href="https://github.com/{{ org }}/{{ repoInfo.name }}/milestones/{{ milestoneInfo.number }}/edit" target="_blank">
+                  <i class="material-icons">edit</i>
+                </a>
+                <h5>{{ milestoneInfo.title }}</h5>
+                {% if zenhubActive %}
+                    <p> <strong> Start Date:</strong> {{ milestoneInfo.dates.start_date|date("M/d/Y") }}  | <strong>End Date:</strong>  {{ milestoneInfo.dates.end_date|date("M/d/Y") }}</p>
+                {% else %}
+                    <p> <strong>Due on:</strong>  {{ milestoneInfo.due_on|date("M/d/Y") }}</p>
+                {% endif %}
+                <hr>
+                <p>{{ milestoneInfo.description|nl2br }}</p>
+              </div>
+            </div>
 
-            <div class="col m2">
-              <div class="card topIndicator">
+            <div class="col m5">
+              <div class="card topIndicatorBig">
                 <div class="card-content">
                   <span class="card-title"> Total</span>
                   <p><h3>{{ issues|length }}</h3></p>
@@ -101,10 +110,15 @@
               </div>
             </div>
 
+          </div>
+          {% endif%}
+
+          <div class="row">
+
             <div class="col m3">
               <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">State</strong> {% if zenhubActive %} <br><small>(Estimated by State)</small>{% endif %}</span>
+                  <span class="card-title">Status </strong> {% if zenhubActive %} <br><small>(Estimated by State)</small>{% endif %}</span>
                   <div class="chart-container"><canvas id="chartCanvas-0"></canvas></div>
                   <code class="chartData-0 hide"> {{ chartsData.states|json_encode }} </code>
                 </div>
@@ -121,7 +135,7 @@
               </div>
             </div>
 
-            <div class="col m2">
+            <div class="col m3">
               <div class="card topIndicator">
                 <div class="card-content">
                   <span class="card-title">Responsible</strong> {% if zenhubActive %} <br><small>(Estimated by Responsible)</small>{% endif %}</span>
@@ -131,7 +145,7 @@
               </div>
             </div>
 
-            <div class="col m2">
+            <div class="col m3">
               <div class="card topIndicator">
                 <div class="card-content">
                   <span class="card-title">Priority</strong> {% if zenhubActive %} <br><small>(Estimated by Priority)</small>{% endif %}</span>

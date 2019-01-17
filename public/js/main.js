@@ -16,7 +16,8 @@ var colorMap ={
   "high": RED,
   "medium": YELLOW,
   "task": GRAY,
-  "enhancement": GREEN
+  "enhancement": GREEN,
+  "": '#444'
 }
 
 $(document).ready( function () {

@@ -104,3 +104,17 @@ header {
   background-color: #5fa9da;
   color: #fff;
 }
+
+table#issuesList {
+  font-size: 0.8em;
+}
+
+
+.topIndicatorBig {
+  overflow: auto;
+  height: 350px;
+}
+
+.topIndicatorBig h5{
+  margin: 0;
+}

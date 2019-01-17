@@ -6,6 +6,9 @@ use \Psr\Http\Message\ResponseInterface as Response;
 *******************************    HOME   *************************************
 ******************************************************************************/
 $app->get('/', function ($request, $response, $args) {
+  ini_set('max_execution_time', 600);
+  error_reporting( error_reporting() & ~E_NOTICE );
+
   $GH_URL = 'https://api.github.com';
   //milestoneID=37&zenhubActive=true&state=all
 
@@ -58,6 +61,11 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   $milestones = githubRequest($repoURL.'/milestones');
   if(($milestoneID != "")){
     $milestoneInfo = githubRequest($repoURL.'/milestones/'.$milestoneID);
+
+    if($zenhubActive){
+      $milestoneInfo['dates'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/milestones/'.$milestoneInfo['number'].'/start_date');
+      $milestoneInfo['dates']['end_date'] = $milestoneInfo['due_on'];
+    }
   }
   $allIssues = array();
   $stopRequest = false;
@@ -117,6 +125,7 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 
 
   return $this->view->render($response, 'repo.html', [
+    'org' => $org,
     'repoInfo' => $repoInfo,
     'milestones' => $milestones,
     'issues' => $allIssues,
@@ -133,11 +142,25 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 
 
 $app->get('/freshdesk', function ($request, $response, $args) {
-
+  $agents = freshdeskRequest("https://marlo.freshdesk.com/api/v2/agents");
   $tickets = freshdeskRequest("https://marlo.freshdesk.com/api/v2/tickets");
+
+  // $agent1 = getArrayByKeyValue($agents, 'id', '42000028957');
+  // print_r($agent1['contact']['name']);
+
+
+  $ticketsTemp = array();
+
+  foreach ($tickets as $ticket) {
+      $ticket['requesterInfo'] = getArrayByKeyValue($agents, 'id', $ticket['requester_id']);
+      $ticket['responderInfo'] = getArrayByKeyValue($agents, 'id', $ticket['responder_id']);
+      $ticketsTemp[] = $ticket;
+  }
+  $tickets = $ticketsTemp;
 
   return $this->view->render($response, 'freshdesk.html', [
     'tickets' => $tickets,
+    'agents' => $agents,
   ]);
 })->setName('freshdesk');
 
@@ -152,6 +175,15 @@ function getLabelValue($arrayLabels, $string){
     }
   }
 }
+
+function getArrayByKeyValue($array, $key, $value){
+  foreach ($array as $element) {
+    if ( $element[$key] == $value) {
+      return $element;
+    }
+  }
+}
+
 // Github REST API
 function githubRequest($url){
     global $settings;
@@ -221,6 +253,7 @@ function freshdeskRequest($url){
     $output = curl_exec($ch);
     curl_close($ch);
     $result = json_decode(trim($output), true);
+    print_r($result);
     return $result;
 }
 
@@ -229,14 +262,14 @@ function getAcronyms($s){
       $users['sebas932'] = 'SA';
       $users['AndresFVR'] = 'AV';
       $users['HermesJim'] = 'HJ';
-      $users['mralmanzar'] = 'MRA';
+      $users['mralmanzar'] = 'MA';
       $users['cgarcia9106'] = 'CG';
       $users['jhanzuro'] = 'JZ';
       $users['Grant-Lay'] = 'GL';
       $users['jurodca'] = 'JR';
       $users['htobon'] = 'HT';
       $users['kenjitm'] = 'KT';
-      $users['anamp70'] = 'AMP';
+      $users['anamp07'] = 'AP';
       $users['carios1usb'] = 'CR';
 
       $acronym = $users[$s];
@@ -251,5 +284,6 @@ function getAcronyms($s){
     }
 
 }
+
 
 ?>
