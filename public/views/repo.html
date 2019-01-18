@@ -166,8 +166,8 @@
             <thead>
               <tr>
                 <th>GitHub ID</th>
-                <th>Milestone</th>
                 <th>Title</th>
+                <th>Milestone</th>
                 <!-- <th>Label(s)</th> -->
                 <th>Type</th>
                 <th>Priority</th>
@@ -185,15 +185,19 @@
             <tbody>
               {% for issue in issues %}
                 <tr>
-                  <td class="center-align"> <a href="{{ issue.html_url}}">{{ issue.number }} </a> </td>
-                  <td>
-                    {{ issue.milestone.title }}
+                  <td class="center-align">
+                    <a href="{{ issue.html_url}}">{{ issue.number }} </a>
                   </td>
                   <td>
+                     {{ issue.title }}
 
-                    {{ issue.title }}
-
-                    {{ issue.pull_request }}
+                    {% if issue.pull_request is not empty %}
+                      <div class="chip">Pull Request</div>
+                    {% endif %}
+                  </td>
+                  <td class="center-align">
+                    {% set milestoneAcronym = issue.milestone.title |split('-') %}
+                    {{ milestoneAcronym[0] }}
                   </td>
                   <!--
                   <td>
@@ -204,7 +208,12 @@
                    -->
                   <td class="center-align"> {{ issue.type }} </td>
                   <td class="center-align"> {{ issue.priority }} </td>
-                  <td class="center-align"> {{ issue.assigneAcronym }} </td>
+                  <td class="center-align">
+                    <div class="chip">
+                      <img src="{{ issue.assignee.avatar_url}}" alt="{{ issue.assignee.login }}">
+                      {{ issue.assigneAcronym }}
+                    </div>
+                  </td>
                   <td class="center-align"> {{ issue.state}}</td>
                   {% if zenhubActive %}
                     <td class="center-align"> {{ issue.zenhub.estimate.value }} </td>

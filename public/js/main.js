@@ -27,6 +27,10 @@ $(document).ready( function () {
   // Materialize select
   $('select').formSelect();
 
+  // Materialize tooltip
+   $('.tooltipped').tooltip();
+
+
 
   // Charts.js
   // State
