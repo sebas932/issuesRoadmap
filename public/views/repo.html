@@ -108,9 +108,32 @@
 
             <div class="col m7">
               <div class="milestoneDescription card-panel topIndicator">
-                <a class="btn-floating btn-small cyan right" href="https://github.com/{{ org }}/{{ repoInfo.name }}/milestones/{{ milestoneInfo.number }}/edit" target="_blank">
-                  <i class="material-icons">edit</i>
-                </a>
+                <div class="buttonsMilestone right">
+                  <a class="btn-floating btn-small  " href="https://github.com/{{ org }}/{{ repoInfo.name }}/milestones/{{ milestoneInfo.number }}/edit" target="_blank">
+                    <i class="material-icons">edit</i>
+                  </a>
+                  <!-- Modal Trigger -->
+                  <a class="btn-floating btn-small cyan  modal-trigger" href="#modal1" ><i class="material-icons">fullscreen</i></a>
+
+                </div>
+
+                <!-- Modal Structure -->
+                <div id="modal1" class="modal">
+                 <div class="modal-content">
+                   <h5>{{ milestoneInfo.title }}</h5>
+                   {% if zenhubActive %}
+                       <p> <strong> Start Date:</strong> {{ milestoneInfo.dates.start_date|date("M/d/Y") }}  | <strong>End Date:</strong>  {{ milestoneInfo.dates.end_date|date("M/d/Y") }}</p>
+                   {% else %}
+                       <p> <strong>Due on:</strong>  {{ milestoneInfo.due_on|date("M/d/Y") }}</p>
+                   {% endif %}
+                   <hr>
+                   <p> {{ milestoneInfo.description|nl2br }} </p>
+                 </div>
+                 <div class="modal-footer">
+                   <a href="#!" class="modal-close waves-effect waves-green btn-flat">close</a>
+                 </div>
+                </div>
+
                 <h5>{{ milestoneInfo.title }}</h5>
                 {% if zenhubActive %}
                     <p> <strong> Start Date:</strong> {{ milestoneInfo.dates.start_date|date("M/d/Y") }}  | <strong>End Date:</strong>  {{ milestoneInfo.dates.end_date|date("M/d/Y") }}</p>
@@ -118,7 +141,7 @@
                     <p> <strong>Due on:</strong>  {{ milestoneInfo.due_on|date("M/d/Y") }}</p>
                 {% endif %}
                 <hr>
-                <p>{{ milestoneInfo.description|nl2br }}</p>
+                <p> {{ milestoneInfo.description|nl2br }} </p>
               </div>
             </div>
 
@@ -189,11 +212,11 @@
                     <a href="{{ issue.html_url}}">{{ issue.number }} </a>
                   </td>
                   <td>
-                     {{ issue.title }}
-
-                    {% if issue.pull_request is not empty %}
-                      <div class="chip">Pull Request</div>
-                    {% endif %}
+                    {{ issue.title }}
+                    <div class="right">
+                      {% if issue.pull_request is not empty %} <span class="new badge" data-badge-caption="Pull Request"></span>{% endif %}
+                      {% if issue.zenhub.is_epic %} <span class="new badge blue" data-badge-caption="Epic"></span> {% endif %}
+                    </div>
                   </td>
                   <td class="center-align">
                     {% set milestoneAcronym = issue.milestone.title |split('-') %}

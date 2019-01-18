@@ -28,7 +28,10 @@ $(document).ready( function () {
   $('select').formSelect();
 
   // Materialize tooltip
-   $('.tooltipped').tooltip();
+  $('.tooltipped').tooltip();
+
+  // Materialize modal
+  $('.modal').modal();
 
 
 
