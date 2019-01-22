@@ -57,6 +57,7 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   $state = $request->getQueryParam('state');
   $state = (isset($state)? $state : "open");
 
+
   $repoInfo = githubRequest($repoURL);
   $milestones = githubRequest($repoURL.'/milestones');
   if(($milestoneID != "")){
@@ -88,40 +89,74 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
     $allIssues =  array_merge($allIssues, $issues);
   } while ($stopRequest == false);
 
+
+
   // Get Issues information from Zenhub
   $issuesTemp = array();
+  $issuesWithEpic = array();
   $chartsData = array();
 
   foreach ($allIssues as $issue) {
-
+      $issueEstimate = 1;
 
       $issue['priority'] = getLabelValue($issue['labels'], "Priority");
       $issue['type'] = getLabelValue($issue['labels'], "Type");
-
       $issue['assigneAcronym'] = getAcronyms($issue['assignee']['login']);
 
-
+      // Assignees
+      $assignees = array();
+      foreach ($issue['assignees'] as $assignee) {
+        $assignee['assigneAcronym'] = getAcronyms($assignee['login']);
+        $assignees[] = $assignee;
+      }
+      $issue['assignees'] = $assignees;
 
       if($zenhubActive){
+        // Getting Zenhub data
         $issue['zenhub'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
 
-        $estimate = $issue['zenhub']['estimate']['value'];
+        // Is epic
+        if ($issue['zenhub']['is_epic']){
+          // Getting Epic Data
+          $issue['zenhub']['epicData'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/epics/'.$issue['number']);
 
-        $chartsData['totalEstimate'] += $estimate;
-        $chartsData['priorities'][$issue['priority']] += $estimate;
-        $chartsData['types'][$issue['type']] += $estimate;
-        $chartsData['users'][$issue['assigneAcronym']] += $estimate;
-        $chartsData['states'][$issue['zenhub']['pipeline']['name']] += $estimate;
-      }else{
-        $chartsData['states'][$issue['state']]++;
-        $chartsData['priorities'][$issue['priority']]++;
-        $chartsData['types'][$issue['type']]++;
-        $chartsData['users'][$issue['assigneAcronym']]++;
+          // Getting Information from github
+          // $subIssues = array();
+          foreach ($issue['zenhub']['epicData']['issues'] as $subIssue) {
+            //$subIssue['githubData'] = githubRequest($repoURL.'/issues/'.$subIssue['issue_number']);
+            //$subIssues[] = $subIssue;
+            $issuesWithEpic[$subIssue['issue_number']] = $issue;
+          }
+          // $issue['zenhub']['epicData']['issues'] = $subIssues;
+        }
+
+        // Set Estimate
+        $issueEstimate = $issue['zenhub']['estimate']['value'];
       }
 
-      $issuesTemp[] = $issue;
+      //
+      if((!$issue['pull_request']) && (!$issue['zenhub']['is_epic'])){
+        //Build Charts
+        $chartsData['totalEstimate'] += $issueEstimate;
+        $chartsData['priorities'][$issue['priority']] += $issueEstimate;
+        $chartsData['types'][$issue['type']] += $issueEstimate;
+        $chartsData['users'][$issue['assigneAcronym']] += $issueEstimate;
+        $chartsData['states'][$issue['zenhub']['pipeline']['name']] += $issueEstimate;
+        $issuesTemp[] = $issue;
+      }
   }
   $allIssues = $issuesTemp;
+
+  // Fill Epic Data
+  $issuesTemp = array();
+  foreach ($allIssues as $issue) {
+    if($issuesWithEpic[$issue['number']]){
+      $issue['epicIssue'] = $issuesWithEpic[$issue['number']];
+    }
+    $issuesTemp[] = $issue;
+  }
+  $allIssues = $issuesTemp;
+
 
 
   return $this->view->render($response, 'repo.html', [
@@ -285,5 +320,8 @@ function getAcronyms($s){
 
 }
 
-
+function getRandomColor(){
+  $rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+  return '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
+}
 ?>

@@ -7,7 +7,7 @@
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
         <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-        <link rel="stylesheet" href="../../css/master.css?20190117_2">
+        <link rel="stylesheet" href="../../css/master.css?20190122">
 
     </head>
     <body>
@@ -190,52 +190,81 @@
               <tr>
                 <th>GitHub ID</th>
                 <th>Title</th>
+                {% if zenhubActive %}<th>Epic</th>{% endif%}
                 <th>Milestone</th>
-                <!-- <th>Label(s)</th> -->
                 <th>Type</th>
                 <th>Priority</th>
                 <th>Responsible</th>
+                <th>Other(s)</th>
                 <th>Status</th>
                 {% if zenhubActive %}
                   <th>Estimate <br><small>ZenHub</small></th>
                   <th>Pipeline <br><small>ZenHub</small></th>
                 {% endif%}
                 <th>Created At</th>
+                <!--
+
                 <th>Updated At</th>
                 <th>Closed At</th>
+                -->
               </tr>
             </thead>
             <tbody>
               {% for issue in issues %}
                 <tr>
                   <td class="center-align">
-                    <a href="{{ issue.html_url}}">{{ issue.number }} </a>
+                    <a href="{{ issue.html_url}}">#{{ issue.number }} </a>
                   </td>
                   <td>
-                    {{ issue.title }}
                     <div class="right">
                       {% if issue.pull_request is not empty %} <span class="new badge" data-badge-caption="Pull Request"></span>{% endif %}
-                      {% if issue.zenhub.is_epic %} <span class="new badge blue" data-badge-caption="Epic"></span> {% endif %}
                     </div>
+                    <span class="title"> {{ issue.title }} </span>
+                    {% if issue.zenhub.epicData.issues is not empty %}
+                    <br>
+                    <ul class="browser-default">
+                      {% for subIssue in issue.zenhub.epicData.issues %}
+                        <li>
+                          <a href="https://github.com/{{ org }}/{{ repoInfo.name }}/issues/{{ subIssue.issue_number }}">
+                            #{{ subIssue.issue_number }} </a> {{ subIssue.githubData.title }} - <strong>{{ subIssue.pipeline.name }}</strong>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                    {% endif %}
                   </td>
+                  {% if zenhubActive %}
+                  <td class="">
+                    {% if issue.epicIssue is not empty %}
+                      <a href="https://github.com/{{ org }}/{{ repoInfo.name }}/issues/{{ issue.epicIssue.number }}">
+                        #{{ issue.epicIssue.number }}
+                      </a>  {{ issue.epicIssue.title }}
+                    {% else %}
+                      <nobr>No Epic</nobr>
+                    {% endif %}
+                  </td>
+                  {% endif %}
                   <td class="center-align">
                     {% set milestoneAcronym = issue.milestone.title |split('-') %}
                     {{ milestoneAcronym[0] }}
                   </td>
-                  <!--
-                  <td>
-                    {% for label in issue.labels %}
-                      <span class="badge " style="border-bottom-color: #{{ label.color }};">{{ label.name }}</span>
-                    {% endfor %}
-                  </td>
-                   -->
                   <td class="center-align"> {{ issue.type }} </td>
                   <td class="center-align"> {{ issue.priority }} </td>
-                  <td class="center-align">
-                    <div class="chip">
+                  <td class="">
+                    <div class="chip amber lighten-4">
                       <img src="{{ issue.assignee.avatar_url}}" alt="{{ issue.assignee.login }}">
                       {{ issue.assigneAcronym }}
                     </div>
+                  </td>
+                  <td>
+                    {% for user in issue.assignees %}
+                      {% set isLeader =  issue.assignee.login ==  user.login %}
+                      {% if not isLeader %}
+                        <div class="chip">
+                          <img src="{{ user.avatar_url}}" alt="{{ user.login }}">
+                          {{ user.assigneAcronym }}
+                        </div>
+                      {% endif %}
+                    {% endfor %}
                   </td>
                   <td class="center-align"> {{ issue.state}}</td>
                   {% if zenhubActive %}
@@ -243,8 +272,10 @@
                     <td class="center-align pipeline-{{ issue.zenhub.pipeline.name|replace(' ', '-')|replace('/', '-') }}"> {{ issue.zenhub.pipeline.name }} </td>
                   {% endif %}
                   <td> <small>{{ issue.created_at }}</small> </td>
+                  <!--
                   <td> <small>{{ issue.updated_at }}</small> </td>
                   <td> <small>{{ issue.closed_at  }}</small> </td>
+                  -->
                 </tr>
               {% endfor %}
 

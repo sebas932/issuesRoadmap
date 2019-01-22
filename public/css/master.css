@@ -119,3 +119,19 @@ table#issuesList {
 .milestoneDescription h5{
   margin: 0 !important;
 }
+
+.chip {
+  font-size: 0.9em;
+  height: 25px;
+  line-height: 25px;
+}
+
+.chip>img {
+  height: 25px;
+  width: 25px;
+  margin: 0 5px 0 -15px;
+}
+
+.epicBadge {
+
+}
