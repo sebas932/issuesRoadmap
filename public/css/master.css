@@ -129,9 +129,10 @@ table#issuesList {
 .chip>img {
   height: 25px;
   width: 25px;
-  margin: 0 5px 0 -15px;
+  /* margin: 0 8px 0 -12; */
 }
 
 .epicBadge {
-
+  padding: 0 !important;
+  min-width: 12px !important;
 }
