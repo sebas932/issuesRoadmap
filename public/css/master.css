@@ -52,6 +52,10 @@ table#issuesList {
   width: 80vw;
 }
 
+.topIndicator h3{
+  margin: 0;
+}
+
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 nav {
   background-color: #2196F3;
@@ -85,22 +89,26 @@ header {
   height: 165px;
 }
 
-.pipeline-In-Progress {
+.pipeline-In-Progress .pipelineColumn {
   background-color: #f5ce34;
   color: #fff;
 }
 
-.pipeline-Closed {
+.pipeline-Closed .pipelineColumn {
   background-color: #27ae60;
   color: #fff;
 }
 
-.pipeline-New-Issues {
+.pipeline-Closed .title {
+  text-decoration: line-through #27ae6094;
+}
+
+.pipeline-New-Issues .pipelineColumn {
   background-color: #ef685a;
   color: #fff;
 }
 
-.pipeline-Review-QA {
+.pipeline-Review-QA .pipelineColumn {
   background-color: #5fa9da;
   color: #fff;
 }
@@ -108,6 +116,7 @@ header {
 table#issuesList {
   font-size: 0.8em;
 }
+
 .milestoneDescription {
   overflow: auto;
 }
@@ -116,7 +125,7 @@ table#issuesList {
   height: 350px;
 }
 
-.milestoneDescription h5{
+.milestoneDescription h5 {
   margin: 0 !important;
 }
 

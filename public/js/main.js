@@ -17,6 +17,8 @@ var colorMap ={
   "medium": YELLOW,
   "task": GRAY,
   "enhancement": GREEN,
+  "not planned": GRAY,
+  "planned": BLUE,
   "": '#444'
 }
 
@@ -44,6 +46,8 @@ $(document).ready( function () {
   setChart('2', 'horizontalBar', false);
   // Responsible
   setChart('3', 'bar', false);
+  // NotPlanned and Planned
+  setChart('4', 'doughnut', true);
 
 });
 

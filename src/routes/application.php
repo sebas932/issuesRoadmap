@@ -103,6 +103,8 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
       $issue['type'] = getLabelValue($issue['labels'], "Type");
       $issue['assigneAcronym'] = getAcronyms($issue['assignee']['login']);
 
+      $issue['isNew'] = ($milestoneInfo['dates']['start_date'] < $issue['created_at']);
+
       // Assignees
       $assignees = array();
       foreach ($issue['assignees'] as $assignee) {
@@ -138,6 +140,11 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
       if((!$issue['pull_request']) && (!$issue['zenhub']['is_epic'])){
         //Build Charts
         $chartsData['totalEstimate'] += $issueEstimate;
+        if($issue['isNew'])
+          $chartsData['issuesEstimate']['Not Planned'] += $issueEstimate;
+        else{
+          $chartsData['issuesEstimate']['Planned'] += $issueEstimate;
+        }
         $chartsData['priorities'][$issue['priority']] += $issueEstimate;
         $chartsData['types'][$issue['type']] += $issueEstimate;
         $chartsData['users'][$issue['assigneAcronym']] += $issueEstimate;

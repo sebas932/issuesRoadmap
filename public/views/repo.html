@@ -90,7 +90,9 @@
                   <span class="card-title"> Total Issues</span>
                   <p><h3>{{ issues|length }}</h3></p>
                   {% if zenhubActive %}
-                    <p><strong> Total Estimated</strong> <br>{{ chartsData.totalEstimate }}</p>
+                    <p><strong> Total Estimated:</strong> {{ chartsData.totalEstimate }} </p>
+                    <div class="chart-container"><canvas id="chartCanvas-4"></canvas></div>
+                    <code class="chartData-4 hide"> {{ chartsData.issuesEstimate|json_encode }} </code>
                   {% endif %}
                 </div>
               </div>
@@ -210,7 +212,7 @@
             </thead>
             <tbody>
               {% for issue in issues %}
-                <tr>
+                <tr class="pipeline-{{ issue.zenhub.pipeline.name|replace(' ', '-')|replace('/', '-') }}">
                   {% if zenhubActive %}
                   <td class="">
                     {% if issue.epicIssue is not empty %}
@@ -227,6 +229,7 @@
                   <td>
                     <div class="right">
                       {% if issue.pull_request is not empty %} <span class="new badge" data-badge-caption="Pull Request"></span>{% endif %}
+                      {% if issue.isNew %}<span class="new badge" data-badge-caption="New"></span>{% endif %}
                     </div>
                     <span class="title"> <a href="{{ issue.html_url}}">#{{ issue.number }} </a>  {{ issue.title }} </span>
                     {% if issue.zenhub.epicData.issues is not empty %}
@@ -267,7 +270,7 @@
                   <td class="center-align"> {{ issue.state}}</td>
                   {% if zenhubActive %}
                     <td class="center-align"> {{ issue.zenhub.estimate.value }} </td>
-                    <td class="center-align pipeline-{{ issue.zenhub.pipeline.name|replace(' ', '-')|replace('/', '-') }}"> {{ issue.zenhub.pipeline.name }} </td>
+                    <td class="center-align pipelineColumn"> {{ issue.zenhub.pipeline.name }} </td>
                   {% endif %}
                   <td> <small>{{ issue.created_at }}</small> </td>
                   <!--
@@ -293,7 +296,7 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
       <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" charset="utf-8"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-      <script src="../../js/main.js" charset="utf-8"></script>
+      <script src="../../js/main.js?20190129" charset="utf-8"></script>
 
     </body>
 
