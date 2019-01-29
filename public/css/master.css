@@ -82,7 +82,7 @@ header {
 
 .chart-container {
   position: relative;
-  height: 148px;
+  max-height: 148px;
 }
 
 .sprintCard {

@@ -37,7 +37,7 @@ $(document).ready( function () {
 
 
 
-  // Charts.js
+  /** Charts.js **/
   // State
   setChart('0', 'doughnut', true);
   // Type

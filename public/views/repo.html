@@ -91,7 +91,7 @@
                   <p><h3>{{ issues|length }}</h3></p>
                   {% if zenhubActive %}
                     <p><strong> Total Estimated:</strong> {{ chartsData.totalEstimate }} </p>
-                    <div class="chart-container"><canvas id="chartCanvas-4"></canvas></div>
+                    <div class="chart-container" style="height: 110px"><canvas id="chartCanvas-4"></canvas></div>
                     <code class="chartData-4 hide"> {{ chartsData.issuesEstimate|json_encode }} </code>
                   {% endif %}
                 </div>
