@@ -22,6 +22,16 @@
         </div>
       </header>
 
+      <!-- Floating Buttons  -->
+      <div class="fixed-action-btn">
+        <a class="btn-floating btn-large blue"><i class="large material-icons">apps</i></a>
+        <ul>
+          <li>
+            <a class="btn-floating green" target="_blank" href="https://github.com/{{ org }}/{{ repoInfo.name }}/issues/new?milestone={{ milestoneInfo.number }}"><i class="material-icons">add</i></a>
+          </li>
+        </ul>
+      </div>
+
       <div class="">
         <div class="leftBar">
           {% if hideFilters != true %}
@@ -296,7 +306,7 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
       <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" charset="utf-8"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-      <script src="../../js/main.js?20190129" charset="utf-8"></script>
+      <script src="../../js/main.js?20190206" charset="utf-8"></script>
 
     </body>
 

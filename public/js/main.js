@@ -35,6 +35,9 @@ $(document).ready( function () {
   // Materialize modal
   $('.modal').modal();
 
+  // Materialize floating buttons 
+  $('.fixed-action-btn').floatingActionButton();
+
 
 
   /** Charts.js **/
