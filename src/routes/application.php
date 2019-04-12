@@ -9,29 +9,16 @@ $app->get('/', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
   error_reporting( error_reporting() & ~E_NOTICE );
 
-  $GH_URL = 'https://api.github.com';
-  //milestoneID=37&zenhubActive=true&state=all
-
-
+  // Parameters
   $org = 'CCAFS';
   $repo = 'MARLO';
-  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
 
-  $sprints = githubRequest($repoURL.'/milestones?state=all&per_page=100&direction=desc');
-
-
-  $sprintsTemp = array();
-  foreach ($sprints as $s) {
-    $query = $repoURL.'/milestones/'.$s['number'];
-    $s['github'] = githubRequest($query);
-    $s['report_url'] = './'.$org.'/'.$repo.'?milestoneID='.$s['number'].'&zenhubActive=true&state=all&hideFilters=true';
-    $sprintsTemp[$s['state']][]= $s;
-  }
-
-  //print_r($sprintsTemp);
+  $listOfmilestones = array();
+  $listOfmilestones['open'] =  getMilestones($org, $repo, "open");
+  $listOfmilestones['closed'] =  getMilestones($org, $repo, "closed");
 
   return $this->view->render($response, 'index.html', [
-    'sprints' => $sprintsTemp,
+    'sprints' => $listOfmilestones,
   ]);
 })->setName('index');
 
@@ -58,38 +45,20 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   $state = (isset($state)? $state : "open");
 
 
-  $repoInfo = githubRequest($repoURL);
-  $milestones = githubRequest($repoURL.'/milestones');
+  $repoInfo =  getRepository($org, $repo);
+  $milestones = getMilestones($org, $repo, "open");
+
   if(($milestoneID != "")){
-    $milestoneInfo = githubRequest($repoURL.'/milestones/'.$milestoneID);
+    $milestoneInfo = getMilestoneByID($org, $repo, $milestoneID);
 
     if($zenhubActive){
       $milestoneInfo['dates'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/milestones/'.$milestoneInfo['number'].'/start_date');
       $milestoneInfo['dates']['end_date'] = $milestoneInfo['due_on'];
     }
   }
-  $allIssues = array();
-  $stopRequest = false;
-  $page = 1;
-  $perPage = 100;
 
-
-  // Get all issues from Github
-  do {
-    $query = $repoURL.'/issues?state='.$state.'&page='.$page.'&per_page='.$perPage;
-    if(($milestoneID != "")){
-      $query = $query.'&milestone='.$milestoneID;
-    }
-    $issues = githubRequest($query);
-    if(count($issues) < $perPage){
-      $stopRequest = true;
-    }else{
-      $page = $page + 1;
-    }
-    $allIssues =  array_merge($allIssues, $issues);
-  } while ($stopRequest == false);
-
-
+  // Get all milestone issues
+  $allIssues = getIssues($org, $repo, $milestoneID , $state);
 
   // Get Issues information from Zenhub
   $issuesTemp = array();
@@ -186,10 +155,6 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 $app->get('/freshdesk', function ($request, $response, $args) {
   $agents = freshdeskRequest("https://marlo.freshdesk.com/api/v2/agents");
   $tickets = freshdeskRequest("https://marlo.freshdesk.com/api/v2/tickets");
-
-  // $agent1 = getArrayByKeyValue($agents, 'id', '42000028957');
-  // print_r($agent1['contact']['name']);
-
 
   $ticketsTemp = array();
 
@@ -331,4 +296,68 @@ function getRandomColor(){
   $rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
   return '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
 }
+
+
+/* GITHUB SERVICE */
+
+// Get Issues
+function getIssues($org, $repo, $milestoneID = "" , $state = "all"){
+  $GH_URL = 'https://api.github.com';
+  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
+
+  $stopRequest = false;
+  $page = 1;
+  $perPage = 100;
+  $allIssues = array();
+
+  // Get all issues from Github
+  do {
+    $query = $repoURL.'/issues?state='.$state.'&page='.$page.'&per_page='.$perPage;
+    if(($milestoneID != "")){
+      $query = $query.'&milestone='.$milestoneID;
+    }
+    $issues = githubRequest($query);
+    if(count($issues) < $perPage){
+      $stopRequest = true;
+    }else{
+      $page = $page + 1;
+    }
+    $allIssues =  array_merge($allIssues, $issues);
+  } while ($stopRequest == false);
+
+  return $allIssues;
+}
+
+// Get Repository
+function getRepository($org, $repo){
+  $GH_URL = 'https://api.github.com';
+  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
+  return githubRequest($repoURL);
+}
+
+// Get Milestone By ID
+function getMilestoneByID($org, $repo, $milestoneID){
+  $GH_URL = 'https://api.github.com';
+  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
+  return githubRequest($repoURL.'/milestones/'.$milestoneID);
+}
+
+// Get List of Milestones
+function getMilestones($org, $repo, $state = "all"){
+  $GH_URL = 'https://api.github.com';
+  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
+
+  $milestones = githubRequest($repoURL.'/milestones?state='.$state.'&per_page=100&direction=desc');
+
+  $milestonesTemp = array();
+  foreach ($milestones as $milestoneInfo) {
+    $query = $repoURL.'/milestones/'.$milestoneInfo['number'];
+    $milestoneInfo['github'] = githubRequest($query);
+    $milestoneInfo['report_url'] = './'.$org.'/'.$repo.'?milestoneID='.$milestoneInfo['number'].'&zenhubActive=true&state=all&hideFilters=true';
+    $milestonesTemp[]= $milestoneInfo;
+  }
+  return $milestonesTemp;
+}
+
+
 ?>
