@@ -16,7 +16,10 @@ var colorMap ={
   "high": RED,
   "medium": YELLOW,
   "task": GRAY,
-  "enhancement": GREEN
+  "enhancement": GREEN,
+  "not planned": GRAY,
+  "planned": BLUE,
+  "": '#444'
 }
 
 $(document).ready( function () {
@@ -26,8 +29,18 @@ $(document).ready( function () {
   // Materialize select
   $('select').formSelect();
 
+  // Materialize tooltip
+  $('.tooltipped').tooltip();
 
-  // Charts.js
+  // Materialize modal
+  $('.modal').modal();
+
+  // Materialize floating buttons 
+  $('.fixed-action-btn').floatingActionButton();
+
+
+
+  /** Charts.js **/
   // State
   setChart('0', 'doughnut', true);
   // Type
@@ -36,6 +49,8 @@ $(document).ready( function () {
   setChart('2', 'horizontalBar', false);
   // Responsible
   setChart('3', 'bar', false);
+  // NotPlanned and Planned
+  setChart('4', 'doughnut', true);
 
 });
 

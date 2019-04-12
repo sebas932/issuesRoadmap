@@ -7,7 +7,7 @@
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
         <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-        <link rel="stylesheet" href="../../css/master.css">
+        <link rel="stylesheet" href="../../css/master.css?20190122_2">
 
     </head>
     <body>
@@ -21,6 +21,16 @@
           </div>
         </div>
       </header>
+
+      <!-- Floating Buttons  -->
+      <div class="fixed-action-btn">
+        <a class="btn-floating btn-large blue"><i class="large material-icons">apps</i></a>
+        <ul>
+          <li>
+            <a class="btn-floating green" target="_blank" href="https://github.com/{{ org }}/{{ repoInfo.name }}/issues/new?milestone={{ milestoneInfo.number }}"><i class="material-icons">add</i></a>
+          </li>
+        </ul>
+      </div>
 
       <div class="">
         <div class="leftBar">
@@ -81,21 +91,18 @@
 
         <div class="rightBar {{ hideFilters? 'hideblock': 'show' }}">
           {% if milestoneID is not empty %}
-          <div class="left-align">
-            <h5>{{ milestoneInfo.title }}</h5>
-            <p>Due on: {{ milestoneInfo.due_on|date("M/d/Y") }}</p>
-          </div>
-          {% endif%}
-
           <div class="row">
+
 
             <div class="col m2">
               <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title"> Total</span>
+                  <span class="card-title"> Total Issues</span>
                   <p><h3>{{ issues|length }}</h3></p>
                   {% if zenhubActive %}
-                    <p><strong> Total Estimated</strong> <br>{{ chartsData.totalEstimate }}</p>
+                    <p><strong> Total Estimated:</strong> {{ chartsData.totalEstimate }} </p>
+                    <div class="chart-container" style="height: 110px"><canvas id="chartCanvas-4"></canvas></div>
+                    <code class="chartData-4 hide"> {{ chartsData.issuesEstimate|json_encode }} </code>
                   {% endif %}
                 </div>
               </div>
@@ -104,14 +111,58 @@
             <div class="col m3">
               <div class="card topIndicator">
                 <div class="card-content">
-                  <span class="card-title">State</strong> {% if zenhubActive %} <br><small>(Estimated by State)</small>{% endif %}</span>
+                  <span class="card-title">Status </strong> {% if zenhubActive %} <br><small>(Estimated by State)</small>{% endif %}</span>
                   <div class="chart-container"><canvas id="chartCanvas-0"></canvas></div>
                   <code class="chartData-0 hide"> {{ chartsData.states|json_encode }} </code>
                 </div>
               </div>
             </div>
 
-            <div class="col m3">
+            <div class="col m7">
+              <div class="milestoneDescription card-panel topIndicator">
+                <div class="buttonsMilestone right">
+                  <a class="btn-floating btn-small  " href="https://github.com/{{ org }}/{{ repoInfo.name }}/milestones/{{ milestoneInfo.number }}/edit" target="_blank">
+                    <i class="material-icons">edit</i>
+                  </a>
+                  <!-- Modal Trigger -->
+                  <a class="btn-floating btn-small cyan  modal-trigger" href="#modal1" ><i class="material-icons">fullscreen</i></a>
+
+                </div>
+
+                <!-- Modal Structure -->
+                <div id="modal1" class="modal">
+                 <div class="modal-content">
+                   <h5>{{ milestoneInfo.title }}</h5>
+                   {% if zenhubActive %}
+                       <p> <strong> Start Date:</strong> {{ milestoneInfo.dates.start_date|date("M/d/Y") }}  | <strong>End Date:</strong>  {{ milestoneInfo.dates.end_date|date("M/d/Y") }}</p>
+                   {% else %}
+                       <p> <strong>Due on:</strong>  {{ milestoneInfo.due_on|date("M/d/Y") }}</p>
+                   {% endif %}
+                   <hr>
+                   <p> {{ milestoneInfo.description|nl2br }} </p>
+                 </div>
+                 <div class="modal-footer">
+                   <a href="#!" class="modal-close waves-effect waves-green btn-flat">close</a>
+                 </div>
+                </div>
+
+                <h5>{{ milestoneInfo.title }}</h5>
+                {% if zenhubActive %}
+                    <p> <strong> Start Date:</strong> {{ milestoneInfo.dates.start_date|date("M/d/Y") }}  | <strong>End Date:</strong>  {{ milestoneInfo.dates.end_date|date("M/d/Y") }}</p>
+                {% else %}
+                    <p> <strong>Due on:</strong>  {{ milestoneInfo.due_on|date("M/d/Y") }}</p>
+                {% endif %}
+                <hr>
+                <p> {{ milestoneInfo.description|nl2br }} </p>
+              </div>
+            </div>
+
+          </div>
+          {% endif%}
+
+          <div class="row">
+
+            <div class="col m4">
               <div class="card topIndicator">
                 <div class="card-content">
                   <span class="card-title">Type</strong> {% if zenhubActive %} <br><small>(Estimated by Type)</small>{% endif %}</span>
@@ -121,7 +172,7 @@
               </div>
             </div>
 
-            <div class="col m2">
+            <div class="col m4">
               <div class="card topIndicator">
                 <div class="card-content">
                   <span class="card-title">Responsible</strong> {% if zenhubActive %} <br><small>(Estimated by Responsible)</small>{% endif %}</span>
@@ -131,7 +182,7 @@
               </div>
             </div>
 
-            <div class="col m2">
+            <div class="col m4">
               <div class="card topIndicator">
                 <div class="card-content">
                   <span class="card-title">Priority</strong> {% if zenhubActive %} <br><small>(Estimated by Priority)</small>{% endif %}</span>
@@ -149,52 +200,93 @@
           <table id="issuesList" class="table table-striped table-bordered striped" style="width:100%">
             <thead>
               <tr>
-                <th>GitHub ID</th>
-                <th>Milestone</th>
+                {% if zenhubActive %}<th>Epic</th>{% endif%}
                 <th>Title</th>
-                <!-- <th>Label(s)</th> -->
+                <th>Milestone</th>
                 <th>Type</th>
                 <th>Priority</th>
                 <th>Responsible</th>
+                <th>Responsible(s)</th>
                 <th>Status</th>
                 {% if zenhubActive %}
                   <th>Estimate <br><small>ZenHub</small></th>
                   <th>Pipeline <br><small>ZenHub</small></th>
                 {% endif%}
                 <th>Created At</th>
+                <!--
+
                 <th>Updated At</th>
                 <th>Closed At</th>
+                -->
               </tr>
             </thead>
             <tbody>
               {% for issue in issues %}
-                <tr>
-                  <td class="center-align"> <a href="{{ issue.html_url}}">{{ issue.number }} </a> </td>
-                  <td>
-                    {{ issue.milestone.title }}
+                <tr class="pipeline-{{ issue.zenhub.pipeline.name|replace(' ', '-')|replace('/', '-') }}">
+                  {% if zenhubActive %}
+                  <td class="">
+                    {% if issue.epicIssue is not empty %}
+                      <a href="https://github.com/{{ org }}/{{ repoInfo.name }}/issues/{{ issue.epicIssue.number }}">
+                        #{{ issue.epicIssue.number }}
+                        <!-- <span class="new badge purple epicBadge" data-badge-caption="E"></span> -->
+                      </a>
+                      {{ issue.epicIssue.title }}
+                    {% else %}
+                      <nobr>No Epic</nobr>
+                    {% endif %}
                   </td>
+                  {% endif %}
                   <td>
-
-                    {{ issue.title }}
+                    <div class="right">
+                      {% if issue.pull_request is not empty %} <span class="new badge" data-badge-caption="Pull Request"></span>{% endif %}
+                      {% if issue.isNew %}<span class="new badge" data-badge-caption="New"></span>{% endif %}
+                    </div>
+                    <span class="title"> <a href="{{ issue.html_url}}">#{{ issue.number }} </a>  {{ issue.title }} </span>
+                    {% if issue.zenhub.epicData.issues is not empty %}
+                    <br>
+                    <ul class="browser-default">
+                      {% for subIssue in issue.zenhub.epicData.issues %}
+                        <li>
+                          <a href="https://github.com/{{ org }}/{{ repoInfo.name }}/issues/{{ subIssue.issue_number }}">
+                            #{{ subIssue.issue_number }} </a> {{ subIssue.githubData.title }} - <strong>{{ subIssue.pipeline.name }}</strong>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                    {% endif %}
                   </td>
-                  <!--
-                  <td>
-                    {% for label in issue.labels %}
-                      <span class="badge " style="border-bottom-color: #{{ label.color }};">{{ label.name }}</span>
-                    {% endfor %}
+                  <td class="center-align">
+                    {% set milestoneAcronym = issue.milestone.title |split('-') %}
+                    {{ milestoneAcronym[0] }}
                   </td>
-                   -->
                   <td class="center-align"> {{ issue.type }} </td>
                   <td class="center-align"> {{ issue.priority }} </td>
-                  <td class="center-align"> {{ issue.assigneAcronym }} </td>
+                  <td class="">
+                    <div class="chip amber lighten-4">
+                      <img src="{{ issue.assignee.avatar_url}}" alt="{{ issue.assignee.login }}">
+                      {{ issue.assigneAcronym }}
+                    </div>
+                  </td>
+                  <td>
+                    {% for user in issue.assignees %}
+                      {% set isLeader =  issue.assignee.login ==  user.login %}
+                      {% if not isLeader %}
+                        <div class="chip">
+                          <img src="{{ user.avatar_url}}" alt="{{ user.login }}">
+                          {{ user.assigneAcronym }}
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
                   <td class="center-align"> {{ issue.state}}</td>
                   {% if zenhubActive %}
                     <td class="center-align"> {{ issue.zenhub.estimate.value }} </td>
-                    <td class="center-align pipeline-{{ issue.zenhub.pipeline.name|replace(' ', '-')|replace('/', '-') }}"> {{ issue.zenhub.pipeline.name }} </td>
+                    <td class="center-align pipelineColumn"> {{ issue.zenhub.pipeline.name }} </td>
                   {% endif %}
                   <td> <small>{{ issue.created_at }}</small> </td>
+                  <!--
                   <td> <small>{{ issue.updated_at }}</small> </td>
                   <td> <small>{{ issue.closed_at  }}</small> </td>
+                  -->
                 </tr>
               {% endfor %}
 
@@ -214,7 +306,7 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
       <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" charset="utf-8"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-      <script src="../../js/main.js" charset="utf-8"></script>
+      <script src="../../js/main.js?20190206" charset="utf-8"></script>
 
     </body>
 
