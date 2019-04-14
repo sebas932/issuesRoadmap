@@ -28,4 +28,7 @@ $container['view'] = function ($container) {
 // Homepage
 require '../src/routes/application.php';
 
+// Homepage
+require '../src/routes/api/api.php';
+
 $app->run();

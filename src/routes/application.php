@@ -2,6 +2,9 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
+require_once('/../managers/GithubManager.php');
+require_once('/../utils/Utils.php');
+
 /******************************************************************************
 *******************************    HOME   *************************************
 ******************************************************************************/
@@ -9,13 +12,15 @@ $app->get('/', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
   error_reporting( error_reporting() & ~E_NOTICE );
 
+  // Managers
+  $githubManager = new \managers\GithubManager();
   // Parameters
   $org = 'CCAFS';
   $repo = 'MARLO';
 
   $listOfmilestones = array();
-  $listOfmilestones['open'] =  getMilestones($org, $repo, "open");
-  $listOfmilestones['closed'] =  getMilestones($org, $repo, "closed");
+  $listOfmilestones['open'] =  $githubManager->getMilestones($org, $repo, "open");
+  $listOfmilestones['closed'] =  $githubManager->getMilestones($org, $repo, "closed");
 
   return $this->view->render($response, 'index.html', [
     'sprints' => $listOfmilestones,
@@ -29,6 +34,9 @@ $app->get('/', function ($request, $response, $args) {
 $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
   error_reporting( error_reporting() & ~E_NOTICE );
+  // Managers
+  $githubManager = new \managers\GithubManager();
+  $utils = new \utils\Utils();
 
   $GH_URL = 'https://api.github.com';
   $ZH_URL = 'https://api.zenhub.io/p1';
@@ -45,11 +53,11 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   $state = (isset($state)? $state : "open");
 
 
-  $repoInfo =  getRepository($org, $repo);
-  $milestones = getMilestones($org, $repo, "open");
+  $repoInfo =  $githubManager->getRepository($org, $repo);
+  $milestones = $githubManager->getMilestones($org, $repo, "open");
 
   if(($milestoneID != "")){
-    $milestoneInfo = getMilestoneByID($org, $repo, $milestoneID);
+    $milestoneInfo = $githubManager->getMilestoneByID($org, $repo, $milestoneID);
 
     if($zenhubActive){
       $milestoneInfo['dates'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/milestones/'.$milestoneInfo['number'].'/start_date');
@@ -58,7 +66,7 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   }
 
   // Get all milestone issues
-  $allIssues = getIssues($org, $repo, $milestoneID , $state);
+  $allIssues = $githubManager->getIssues($org, $repo, $milestoneID , $state);
 
   // Get Issues information from Zenhub
   $issuesTemp = array();
@@ -68,16 +76,16 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   foreach ($allIssues as $issue) {
       $issueEstimate = 1;
 
-      $issue['priority'] = getLabelValue($issue['labels'], "Priority");
-      $issue['type'] = getLabelValue($issue['labels'], "Type");
-      $issue['assigneAcronym'] = getAcronyms($issue['assignee']['login']);
+      $issue['priority'] = $utils->getLabelValue($issue['labels'], "Priority");
+      $issue['type'] = $utils->getLabelValue($issue['labels'], "Type");
+      $issue['assigneAcronym'] = $utils->getAcronyms($issue['assignee']['login']);
 
       $issue['isNew'] = ($milestoneInfo['dates']['start_date'] < $issue['created_at']);
 
       // Assignees
       $assignees = array();
       foreach ($issue['assignees'] as $assignee) {
-        $assignee['assigneAcronym'] = getAcronyms($assignee['login']);
+        $assignee['assigneAcronym'] = $utils->getAcronyms($assignee['login']);
         $assignees[] = $assignee;
       }
       $issue['assignees'] = $assignees;
@@ -153,14 +161,16 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 
 
 $app->get('/freshdesk', function ($request, $response, $args) {
+  $utils = new \utils\Utils();
+
   $agents = freshdeskRequest("https://marlo.freshdesk.com/api/v2/agents");
   $tickets = freshdeskRequest("https://marlo.freshdesk.com/api/v2/tickets");
 
   $ticketsTemp = array();
 
   foreach ($tickets as $ticket) {
-      $ticket['requesterInfo'] = getArrayByKeyValue($agents, 'id', $ticket['requester_id']);
-      $ticket['responderInfo'] = getArrayByKeyValue($agents, 'id', $ticket['responder_id']);
+      $ticket['requesterInfo'] = $utils->getArrayByKeyValue($agents, 'id', $ticket['requester_id']);
+      $ticket['responderInfo'] = $utils->getArrayByKeyValue($agents, 'id', $ticket['responder_id']);
       $ticketsTemp[] = $ticket;
   }
   $tickets = $ticketsTemp;
@@ -173,48 +183,6 @@ $app->get('/freshdesk', function ($request, $response, $args) {
 
 
 /****************************************************************************/
-
-
-function getLabelValue($arrayLabels, $string){
-  foreach ($arrayLabels as $label) {
-    if (strpos($label['name'], $string) !== false) {
-      return explode('-',$label['name'])[1] ;
-    }
-  }
-}
-
-function getArrayByKeyValue($array, $key, $value){
-  foreach ($array as $element) {
-    if ( $element[$key] == $value) {
-      return $element;
-    }
-  }
-}
-
-// Github REST API
-function githubRequest($url){
-    global $settings;
-    $ch = curl_init();
-    // Basic Authentication with token
-    // https://developer.github.com/v3/auth/
-    // https://github.com/blog/1509-personal-api-tokens
-    // https://github.com/settings/tokens
-    $access = $settings['github']['username'].':'.$settings['github']['token'];
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    //curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml'));
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Agent smith');
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_USERPWD, $access);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    $output = curl_exec($ch);
-    curl_close($ch);
-    $result = json_decode(trim($output), true);
-    return $result;
-}
 
 // ZenHubIO/API REST API
 function zenhubRequest($url){
@@ -264,100 +232,10 @@ function freshdeskRequest($url){
     return $result;
 }
 
-function getAcronyms($s){
-    if($s != null){
-      $users['sebas932'] = 'SA';
-      $users['AndresFVR'] = 'AV';
-      $users['HermesJim'] = 'HJ';
-      $users['mralmanzar'] = 'MA';
-      $users['cgarcia9106'] = 'CG';
-      $users['jhanzuro'] = 'JZ';
-      $users['Grant-Lay'] = 'GL';
-      $users['jurodca'] = 'JR';
-      $users['htobon'] = 'HT';
-      $users['kenjitm'] = 'KT';
-      $users['anamp07'] = 'AP';
-      $users['carios1usb'] = 'CR';
-
-      $acronym = $users[$s];
-
-      if ($acronym != null){
-        return $acronym;
-      }else{
-        return $s;
-      }
-    }else{
-      return "Not Defined";
-    }
-
-}
-
-function getRandomColor(){
-  $rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
-  return '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
-}
 
 
-/* GITHUB SERVICE */
 
-// Get Issues
-function getIssues($org, $repo, $milestoneID = "" , $state = "all"){
-  $GH_URL = 'https://api.github.com';
-  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
 
-  $stopRequest = false;
-  $page = 1;
-  $perPage = 100;
-  $allIssues = array();
-
-  // Get all issues from Github
-  do {
-    $query = $repoURL.'/issues?state='.$state.'&page='.$page.'&per_page='.$perPage;
-    if(($milestoneID != "")){
-      $query = $query.'&milestone='.$milestoneID;
-    }
-    $issues = githubRequest($query);
-    if(count($issues) < $perPage){
-      $stopRequest = true;
-    }else{
-      $page = $page + 1;
-    }
-    $allIssues =  array_merge($allIssues, $issues);
-  } while ($stopRequest == false);
-
-  return $allIssues;
-}
-
-// Get Repository
-function getRepository($org, $repo){
-  $GH_URL = 'https://api.github.com';
-  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
-  return githubRequest($repoURL);
-}
-
-// Get Milestone By ID
-function getMilestoneByID($org, $repo, $milestoneID){
-  $GH_URL = 'https://api.github.com';
-  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
-  return githubRequest($repoURL.'/milestones/'.$milestoneID);
-}
-
-// Get List of Milestones
-function getMilestones($org, $repo, $state = "all"){
-  $GH_URL = 'https://api.github.com';
-  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
-
-  $milestones = githubRequest($repoURL.'/milestones?state='.$state.'&per_page=100&direction=desc');
-
-  $milestonesTemp = array();
-  foreach ($milestones as $milestoneInfo) {
-    $query = $repoURL.'/milestones/'.$milestoneInfo['number'];
-    $milestoneInfo['github'] = githubRequest($query);
-    $milestoneInfo['report_url'] = './'.$org.'/'.$repo.'?milestoneID='.$milestoneInfo['number'].'&zenhubActive=true&state=all&hideFilters=true';
-    $milestonesTemp[]= $milestoneInfo;
-  }
-  return $milestonesTemp;
-}
 
 
 ?>
