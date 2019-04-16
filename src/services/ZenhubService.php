@@ -13,11 +13,16 @@ class ZenhubService {
   }
 
   public function getIssueData($repoID, $issueNumber){
-    return $this->zenhubRequest('/repositories/'.$repoID.'/issues/'.$issueNumber);
+    $data = $this->zenhubRequest('/repositories/'.$repoID.'/issues/'.$issueNumber);
+    if($data['pipeline']['name'] == ''){
+      $data['pipeline']['name'] = "Closed";
+    }
+    return $data;
   }
 
   public function getEpicData($repoID, $issueNumber){
-    return $this->zenhubRequest('/repositories/'.$repoID.'/epics/'.$issueNumber);
+    $data = $this->zenhubRequest('/repositories/'.$repoID.'/epics/'.$issueNumber);
+    return $data;
   }
 
 

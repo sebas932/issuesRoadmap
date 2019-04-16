@@ -2,9 +2,6 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-require_once('/../../services/GithubService.php');
-require_once('/../../utils/Utils.php');
-
 $app->get('/api/{organization}/{repo}/milestones', function ($request, $response, $args) {
   // Managers
   $githubService = new \services\GithubService();

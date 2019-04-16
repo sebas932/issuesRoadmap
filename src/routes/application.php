@@ -2,12 +2,6 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-require_once('/../services/GithubService.php');
-require_once('/../services/ZenhubService.php');
-require_once('/../services/FreshdeskService.php');
-
-require_once('/../utils/Utils.php');
-
 /******************************************************************************
 *******************************    HOME   *************************************
 ******************************************************************************/
@@ -101,7 +95,6 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
         if ($issue['zenhub']['is_epic']){
           // Getting Epic Data
           $issue['zenhub']['epicData'] = $zenhubService->getEpicData($repoInfo['id'], $issue['number']);
-
           // Getting Information from github
           // $subIssues = array();
           foreach ($issue['zenhub']['epicData']['issues'] as $subIssue) {
