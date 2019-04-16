@@ -2,17 +2,20 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-require_once('/../../managers/GithubManager.php');
+require_once('/../../services/GithubService.php');
 require_once('/../../utils/Utils.php');
 
 $app->get('/api/{organization}/{repo}/milestones', function ($request, $response, $args) {
   // Managers
-  $githubManager = new \managers\GithubManager();
-  // Parameters
+  $githubService = new \services\GithubService();
+  // URL Parameters
   $org = $request->getAttribute('organization');
   $repo = $request->getAttribute('repo');
+  // Get Parameters
+  $state = $request->getQueryParam('state');
+  $state = (isset($state)? $state : "open");
 
-  $milestones = $githubManager->getMilestones($org, $repo, "all");
+  $milestones = $githubService->getMilestones($org, $repo, $state);
 
   return $response->withStatus(200)
         ->withHeader('Content-Type', 'application/json')

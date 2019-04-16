@@ -1,7 +1,7 @@
 <?php
-namespace managers;
+namespace services;
 
-class GithubManager {
+class GithubService {
   public function call()
     {
         $this->next->call();
@@ -67,7 +67,7 @@ class GithubManager {
  }
 
  // Github REST API
- public function githubRequest($url){
+ private function githubRequest($url){
      global $settings;
      $ch = curl_init();
      // Basic Authentication with token

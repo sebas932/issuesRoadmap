@@ -2,7 +2,10 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-require_once('/../managers/GithubManager.php');
+require_once('/../services/GithubService.php');
+require_once('/../services/ZenhubService.php');
+require_once('/../services/FreshdeskService.php');
+
 require_once('/../utils/Utils.php');
 
 /******************************************************************************
@@ -11,16 +14,15 @@ require_once('/../utils/Utils.php');
 $app->get('/', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
   error_reporting( error_reporting() & ~E_NOTICE );
-
   // Managers
-  $githubManager = new \managers\GithubManager();
+  $githubService = new \services\GithubService();
   // Parameters
   $org = 'CCAFS';
   $repo = 'MARLO';
 
   $listOfmilestones = array();
-  $listOfmilestones['open'] =  $githubManager->getMilestones($org, $repo, "open");
-  $listOfmilestones['closed'] =  $githubManager->getMilestones($org, $repo, "closed");
+  $listOfmilestones['open'] =  $githubService->getMilestones($org, $repo, "open");
+  $listOfmilestones['closed'] =  $githubService->getMilestones($org, $repo, "closed");
 
   return $this->view->render($response, 'index.html', [
     'sprints' => $listOfmilestones,
@@ -28,14 +30,15 @@ $app->get('/', function ($request, $response, $args) {
 })->setName('index');
 
 /******************************************************************************
-*******************************   REPORT  *************************************
+**************************  MILESTONE REPORT  *********************************
 ******************************************************************************/
 
 $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
   error_reporting( error_reporting() & ~E_NOTICE );
   // Managers
-  $githubManager = new \managers\GithubManager();
+  $githubService = new \services\GithubService();
+  $zenhubService = new \services\ZenhubService();
   $utils = new \utils\Utils();
 
   $GH_URL = 'https://api.github.com';
@@ -53,20 +56,20 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   $state = (isset($state)? $state : "open");
 
 
-  $repoInfo =  $githubManager->getRepository($org, $repo);
-  $milestones = $githubManager->getMilestones($org, $repo, "open");
+  $repoInfo =  $githubService->getRepository($org, $repo);
+  $milestones = $githubService->getMilestones($org, $repo, "open");
 
   if(($milestoneID != "")){
-    $milestoneInfo = $githubManager->getMilestoneByID($org, $repo, $milestoneID);
+    $milestoneInfo = $githubService->getMilestoneByID($org, $repo, $milestoneID);
 
     if($zenhubActive){
-      $milestoneInfo['dates'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/milestones/'.$milestoneInfo['number'].'/start_date');
+      $milestoneInfo['dates'] = $zenhubService->getStartDate($repoInfo['id'], $milestoneInfo['number']);
       $milestoneInfo['dates']['end_date'] = $milestoneInfo['due_on'];
     }
   }
 
   // Get all milestone issues
-  $allIssues = $githubManager->getIssues($org, $repo, $milestoneID , $state);
+  $allIssues = $githubService->getIssues($org, $repo, $milestoneID , $state);
 
   // Get Issues information from Zenhub
   $issuesTemp = array();
@@ -92,12 +95,12 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 
       if($zenhubActive){
         // Getting Zenhub data
-        $issue['zenhub'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/issues/'.$issue['number']);
+        $issue['zenhub'] = $zenhubService->getIssueData($repoInfo['id'], $issue['number']);
 
         // Is epic
         if ($issue['zenhub']['is_epic']){
           // Getting Epic Data
-          $issue['zenhub']['epicData'] = zenhubRequest($ZH_URL.'/repositories/'.$repoInfo['id'].'/epics/'.$issue['number']);
+          $issue['zenhub']['epicData'] = $zenhubService->getEpicData($repoInfo['id'], $issue['number']);
 
           // Getting Information from github
           // $subIssues = array();
@@ -159,15 +162,19 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   ]);
 })->setName('repo');
 
+/******************************************************************************
+**************************  FRESHDESK REPORT  *********************************
+******************************************************************************/
 
 $app->get('/freshdesk', function ($request, $response, $args) {
+  // Managers
+  $freshdeskService = new \services\FreshdeskService();
   $utils = new \utils\Utils();
 
-  $agents = freshdeskRequest("https://marlo.freshdesk.com/api/v2/agents");
-  $tickets = freshdeskRequest("https://marlo.freshdesk.com/api/v2/tickets");
+  $agents = $freshdeskService->getAgents();
+  $tickets = $freshdeskService->getTickets();
 
   $ticketsTemp = array();
-
   foreach ($tickets as $ticket) {
       $ticket['requesterInfo'] = $utils->getArrayByKeyValue($agents, 'id', $ticket['requester_id']);
       $ticket['responderInfo'] = $utils->getArrayByKeyValue($agents, 'id', $ticket['responder_id']);
@@ -182,55 +189,6 @@ $app->get('/freshdesk', function ($request, $response, $args) {
 })->setName('freshdesk');
 
 
-/****************************************************************************/
-
-// ZenHubIO/API REST API
-function zenhubRequest($url){
-    global $settings;
-    $ch = curl_init();
-    // Basic Authentication with token
-    // https://github.com/ZenHubIO/API
-    // curl -H 'X-Authentication-Token: TOKEN' https://api.zenhub.io/p1/repositories/:repo_id/issues/:issue_id
-    $access = $settings['zenhub']['token'];
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Authentication-Token: '.$access));
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Agent smith');
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_USERPWD, $access);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    $output = curl_exec($ch);
-    curl_close($ch);
-    $result = json_decode(trim($output), true);
-    return $result;
-}
-
-// Freshdesk REST API
-function freshdeskRequest($url){
-    global $settings;
-    $ch = curl_init();
-    // Basic Authentication with token
-    // curl -v -u sebas932:IlRyulZofEubvo7 -X GET 'https://marlo.freshdesk.com/api/v2/tickets'
-    $access = $settings['freshdesk']['username'].":".$settings['freshdesk']['password'];
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    //curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Authentication-Token: '.$access));
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Agent smith');
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_USERPWD, $access);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    $output = curl_exec($ch);
-    curl_close($ch);
-    $result = json_decode(trim($output), true);
-    print_r($result);
-    return $result;
-}
 
 
 
