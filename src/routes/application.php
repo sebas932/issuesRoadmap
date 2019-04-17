@@ -33,6 +33,8 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   // Managers
   $githubService = new \services\GithubService();
   $zenhubService = new \services\ZenhubService();
+  $freshdeskService = new \services\FreshdeskService();
+
   $utils = new \utils\Utils();
 
   $GH_URL = 'https://api.github.com';
@@ -59,6 +61,11 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
     if($zenhubActive){
       $milestoneInfo['dates'] = $zenhubService->getStartDate($repoInfo['id'], $milestoneInfo['number']);
       $milestoneInfo['dates']['end_date'] = $milestoneInfo['due_on'];
+
+      // Getting Freshdesk Tickets 
+      $startDate = (new DateTime($milestoneInfo['dates']['start_date']))->format('Y-m-d');
+      $endDate = (new DateTime($milestoneInfo['dates']['end_date']))->format('Y-m-d');
+      $milestoneInfo['tickets'] = $freshdeskService->getTicketsByDates($startDate, $endDate);
     }
   }
 
@@ -96,22 +103,18 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
           // Getting Epic Data
           $issue['zenhub']['epicData'] = $zenhubService->getEpicData($repoInfo['id'], $issue['number']);
           // Getting Information from github
-          // $subIssues = array();
           foreach ($issue['zenhub']['epicData']['issues'] as $subIssue) {
-            //$subIssue['githubData'] = githubRequest($repoURL.'/issues/'.$subIssue['issue_number']);
-            //$subIssues[] = $subIssue;
             $issuesWithEpic[$subIssue['issue_number']] = $issue;
           }
-          // $issue['zenhub']['epicData']['issues'] = $subIssues;
         }
 
         // Set Estimate
         $issueEstimate = $issue['zenhub']['estimate']['value'];
       }
 
-      //
+
+      // Filter Issues and Build Charts Data
       if((!$issue['pull_request']) && (!$issue['zenhub']['is_epic'])){
-        //Build Charts
         $chartsData['totalEstimate'] += $issueEstimate;
         if($issue['isNew'])
           $chartsData['issuesEstimate']['Not Planned'] += $issueEstimate;
@@ -162,22 +165,13 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 $app->get('/freshdesk', function ($request, $response, $args) {
   // Managers
   $freshdeskService = new \services\FreshdeskService();
-  $utils = new \utils\Utils();
 
-  $agents = $freshdeskService->getAgents();
-  $tickets = $freshdeskService->getTickets();
-
-  $ticketsTemp = array();
-  foreach ($tickets as $ticket) {
-      $ticket['requesterInfo'] = $utils->getArrayByKeyValue($agents, 'id', $ticket['requester_id']);
-      $ticket['responderInfo'] = $utils->getArrayByKeyValue($agents, 'id', $ticket['responder_id']);
-      $ticketsTemp[] = $ticket;
-  }
-  $tickets = $ticketsTemp;
+  $startDate = "2018-04-16";
+  $endDate = "2019-04-17";
+  $tickets = $freshdeskService->getTicketsByDates($startDate, $endDate);
 
   return $this->view->render($response, 'freshdesk.html', [
-    'tickets' => $tickets,
-    'agents' => $agents,
+    'tickets' => $tickets
   ]);
 })->setName('freshdesk');
 

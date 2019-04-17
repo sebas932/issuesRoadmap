@@ -12,6 +12,7 @@ class ZenhubService {
     return $this->zenhubRequest('/repositories/'.$repoID.'/milestones/'.$milestoneNumber.'/start_date');
   }
 
+  // Get the data for a specific issue.
   public function getIssueData($repoID, $issueNumber){
     $data = $this->zenhubRequest('/repositories/'.$repoID.'/issues/'.$issueNumber);
     if($data['pipeline']['name'] == ''){
@@ -20,8 +21,15 @@ class ZenhubService {
     return $data;
   }
 
+  // Get the data for an Epic issue.
   public function getEpicData($repoID, $issueNumber){
     $data = $this->zenhubRequest('/repositories/'.$repoID.'/epics/'.$issueNumber);
+    return $data;
+  }
+
+  // Get all Epics for a repository
+  public function getEpics($repoID){
+    $data = $this->zenhubRequest('/repositories/'.$repoID.'/epics');
     return $data;
   }
 

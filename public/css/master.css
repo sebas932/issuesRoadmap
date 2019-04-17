@@ -82,7 +82,7 @@ header {
 
 .chart-container {
   position: relative;
-  max-height: 148px;
+  height: 74%;
 }
 
 .sprintCard {
@@ -144,4 +144,8 @@ table#issuesList {
 .epicBadge {
   padding: 0 !important;
   min-width: 12px !important;
+}
+
+.topIndicator .card-content {
+  height: 100%;
 }

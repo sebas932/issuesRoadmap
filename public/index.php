@@ -12,7 +12,8 @@ require_once('./../src/services/ZenhubService.php');
 require_once('./../src/services/FreshdeskService.php');
 require_once('./../src/utils/Utils.php');
 
-$app = new \Slim\App;
+$settings = require __DIR__ . '/../src/config/settings.php';
+$app = new \Slim\App($settings);
 
 /******************************************************************************/
 // Get container

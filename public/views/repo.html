@@ -132,7 +132,7 @@
                 <!-- Modal Structure -->
                 <div id="modal1" class="modal">
                  <div class="modal-content">
-                   <h5>{{ milestoneInfo.title }}</h5>
+                    <h5>{{ milestoneInfo.title }}</h5>
                    {% if zenhubActive %}
                        <p> <strong> Start Date:</strong> {{ milestoneInfo.dates.start_date|date("M/d/Y") }}  | <strong>End Date:</strong>  {{ milestoneInfo.dates.end_date|date("M/d/Y") }}</p>
                    {% else %}
@@ -147,6 +147,7 @@
                 </div>
 
                 <h5>{{ milestoneInfo.title }}</h5>
+                (Tickets {{ milestoneInfo.tickets | length  }})
                 {% if zenhubActive %}
                     <p> <strong> Start Date:</strong> {{ milestoneInfo.dates.start_date|date("M/d/Y") }}  | <strong>End Date:</strong>  {{ milestoneInfo.dates.end_date|date("M/d/Y") }}</p>
                 {% else %}

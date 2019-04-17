@@ -2,6 +2,7 @@
 namespace utils;
 
 class Utils {
+
   function getAcronyms($s){
       if($s != null){
         $users['sebas932'] = 'SA';
@@ -40,17 +41,22 @@ class Utils {
   function getLabelValue($arrayLabels, $string){
     foreach ($arrayLabels as $label) {
       if (strpos($label['name'], $string) !== false) {
-        return explode('-',$label['name'])[1] ;
+        $labelValue = explode('-',$label['name'])[1];
+        if((trim($labelValue) != "")){
+          return $labelValue;
+        }
       }
     }
+    return "Not Defined";
   }
 
   function getArrayByKeyValue($array, $key, $value){
     foreach ($array as $element) {
-      if ( $element[$key] == $value) {
+      if ($element[$key] == $value) {
         return $element;
       }
     }
+    return "Not Defined";
   }
 
 }

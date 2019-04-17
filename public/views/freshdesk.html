@@ -21,7 +21,7 @@
             <tr>
               <th>ID</th>
               <th>Subject</th>
-              <th>type</th>
+              <th>Type</th>
               <th>Priority</th>
               <th>Status</th>
               <th>Agent</th>
@@ -35,8 +35,8 @@
                 <td class="text-center"> <a href="https://marlo.freshdesk.com/a/tickets/{{ ticket.id}}">{{ ticket.id }} </a> </td>
                 <td>{{ ticket.subject }}</td>
                 <td>{{ ticket.type }}</td>
-                <td>{{ ticket.priority }}</td>
-                <td>{{ ticket.status }}</td>
+                <td>{{ ticket.priorityName }}</td>
+                <td>{{ ticket.statusName }}</td>
                 <td>{{ ticket.responderInfo.contact.name }}</td>
 
 
