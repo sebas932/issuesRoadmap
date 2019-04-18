@@ -34,14 +34,10 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   $githubService = new \services\GithubService();
   $zenhubService = new \services\ZenhubService();
   $freshdeskService = new \services\FreshdeskService();
-
   $utils = new \utils\Utils();
 
-  $GH_URL = 'https://api.github.com';
-  $ZH_URL = 'https://api.zenhub.io/p1';
   $org = $request->getAttribute('organization');
   $repo = $request->getAttribute('repo');
-  $repoURL = $GH_URL.'/repos/'.$org.'/'.$repo;
 
   // Parameters
   $milestoneID = $request->getQueryParam('milestoneID');
@@ -62,7 +58,7 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
       $milestoneInfo['dates'] = $zenhubService->getStartDate($repoInfo['id'], $milestoneInfo['number']);
       $milestoneInfo['dates']['end_date'] = $milestoneInfo['due_on'];
 
-      // Getting Freshdesk Tickets 
+      // Getting Freshdesk Tickets
       $startDate = (new DateTime($milestoneInfo['dates']['start_date']))->format('Y-m-d');
       $endDate = (new DateTime($milestoneInfo['dates']['end_date']))->format('Y-m-d');
       $milestoneInfo['tickets'] = $freshdeskService->getTicketsByDates($startDate, $endDate);
