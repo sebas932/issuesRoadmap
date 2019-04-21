@@ -264,7 +264,7 @@
                   <td class="">
                     <div class="chip amber lighten-4">
                       <img src="{{ issue.assignee.avatar_url}}" alt="{{ issue.assignee.login }}">
-                      {{ issue.assigneAcronym }}
+                      {{ issue.assignee.acronym }}
                     </div>
                   </td>
                   <td>
@@ -273,7 +273,7 @@
                       {% if not isLeader %}
                         <div class="chip">
                           <img src="{{ user.avatar_url}}" alt="{{ user.login }}">
-                          {{ user.assigneAcronym }}
+                          {{ user.acronym }}
                         </div>
                       {% endif %}
                     {% endfor %}

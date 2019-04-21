@@ -2,13 +2,15 @@
 namespace services;
 
 class GithubService {
+  private $utils;
   private $userName;
   private $token;
 
   public function __construct(){
     global $settings;
-    $userName = $settings['github']['username'];
-    $token = $settings['github']['token'];
+    $this->utils = new \utils\Utils();
+    $this->userName = $settings['github']['username'];
+    $this->token = $settings['github']['token'];
   }
 
   // Get Issues
@@ -34,6 +36,17 @@ class GithubService {
      }
      $allIssues =  array_merge($allIssues, $issues);
     } while ($stopRequest == false);
+
+    foreach ($allIssues as $i => $issue) {
+      $allIssues[$i]['assignee']['acronym'] = $this->utils->getAcronyms($issue['assignee']['login']);
+      // Assignees
+      $assignees = array();
+      foreach ($issue['assignees'] as $assignee) {
+        $assignee['acronym'] = $this->utils->getAcronyms($assignee['login']);
+        $assignees[] = $assignee;
+      }
+      $allIssues[$i]['assignees'] = $assignees;
+    }
 
     return $allIssues;
  }
@@ -67,7 +80,7 @@ class GithubService {
     // https://developer.github.com/v3/auth/
     // https://github.com/blog/1509-personal-api-tokens
     // https://github.com/settings/tokens
-    $access = $this->$userName.':'.$this->$token;
+    $access = $this->userName.':'.$this->token;
     $fetchURL = 'https://api.github.com'.$query;
 
     $ch = curl_init();

@@ -19,7 +19,8 @@ var colorMap ={
   "enhancement": GREEN,
   "not planned": GRAY,
   "planned": BLUE,
-  "": '#444'
+  "not defined": '#000000',
+  "": '#444444'
 }
 
 $(document).ready( function () {
@@ -35,7 +36,7 @@ $(document).ready( function () {
   // Materialize modal
   $('.modal').modal();
 
-  // Materialize floating buttons 
+  // Materialize floating buttons
   $('.fixed-action-btn').floatingActionButton();
 
 

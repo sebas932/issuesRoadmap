@@ -7,10 +7,12 @@ require '../src/config/settings.php';
 require '../src/config/db.php';
 
 // Loadind clasess
+require_once('./../src/utils/Utils.php');
 require_once('./../src/services/GithubService.php');
 require_once('./../src/services/ZenhubService.php');
 require_once('./../src/services/FreshdeskService.php');
-require_once('./../src/utils/Utils.php');
+require_once('./../src/services/SprintService.php');
+
 
 $settings = require __DIR__ . '/../src/config/settings.php';
 $app = new \Slim\App($settings);

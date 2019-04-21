@@ -78,17 +78,9 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
 
       $issue['priority'] = $utils->getLabelValue($issue['labels'], "Priority");
       $issue['type'] = $utils->getLabelValue($issue['labels'], "Type");
-      $issue['assigneAcronym'] = $utils->getAcronyms($issue['assignee']['login']);
+
 
       $issue['isNew'] = ($milestoneInfo['dates']['start_date'] < $issue['created_at']);
-
-      // Assignees
-      $assignees = array();
-      foreach ($issue['assignees'] as $assignee) {
-        $assignee['assigneAcronym'] = $utils->getAcronyms($assignee['login']);
-        $assignees[] = $assignee;
-      }
-      $issue['assignees'] = $assignees;
 
       if($zenhubActive){
         // Getting Zenhub data
@@ -103,11 +95,9 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
             $issuesWithEpic[$subIssue['issue_number']] = $issue;
           }
         }
-
         // Set Estimate
         $issueEstimate = $issue['zenhub']['estimate']['value'];
       }
-
 
       // Filter Issues and Build Charts Data
       if((!$issue['pull_request']) && (!$issue['zenhub']['is_epic'])){
@@ -119,7 +109,7 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
         }
         $chartsData['priorities'][$issue['priority']] += $issueEstimate;
         $chartsData['types'][$issue['type']] += $issueEstimate;
-        $chartsData['users'][$issue['assigneAcronym']] += $issueEstimate;
+        $chartsData['users'][$issue['assignee']['acronym']] += $issueEstimate;
         $chartsData['states'][$issue['zenhub']['pipeline']['name']] += $issueEstimate;
         $issuesTemp[] = $issue;
       }
