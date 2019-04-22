@@ -10,7 +10,7 @@ $app->add(function ($req, $res, $next) {
     return $response
     ->withHeader('Access-Control-Allow-Origin', '*')
     ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
-    ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
 $app->get('/api/{organization}/{repo}/milestones', function ($request, $response, $args) {
@@ -26,7 +26,7 @@ $app->get('/api/{organization}/{repo}/milestones', function ($request, $response
   $milestones = $githubService->getMilestones($org, $repo, $state);
 
   return $response->withStatus(200)
-        ->withHeader('Content-Type', 'application/json')
+        ->withHeader('Content-Type', 'application/json; charset=utf-8')
         ->write(json_encode($milestones));
 });
 
@@ -47,10 +47,9 @@ $app->get('/api/{organization}/{repo}/sprint/{milestoneID}', function ($request,
   $endTime = new DateTime();
   $diffTime = $endTime->diff($startTime);
   $output['loadTime'] = $diffTime->format('%h:%i:%s');
-
   $output['result'] = $sprint;
 
   return $response->withStatus(200)
-        ->withHeader('Content-Type', 'application/json')
+        ->withHeader('Content-Type', 'application/json; charset=utf-8')
         ->write(json_encode($output));
 });
