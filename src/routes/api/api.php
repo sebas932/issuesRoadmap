@@ -33,8 +33,6 @@ $app->get('/api/{organization}/{repo}/sprint/{milestoneID}', function ($request,
   $sprintService = new \services\SprintService($org, $repo);
   $sprint = $sprintService->getSprint($milestoneID);
 
-
-
   $endTime = new DateTime();
   $diffTime = $endTime->diff($startTime);
   $output['loadTime'] = $diffTime->format('%h:%i:%s');
@@ -43,5 +41,6 @@ $app->get('/api/{organization}/{repo}/sprint/{milestoneID}', function ($request,
 
   return $response->withStatus(200)
         ->withHeader('Content-Type', 'application/json')
+        ->withHeader('Access-Control-Allow-Origin', '*')
         ->write(json_encode($output));
 });

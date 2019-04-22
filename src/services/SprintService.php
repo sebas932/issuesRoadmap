@@ -36,10 +36,10 @@ class SprintService {
     $sprintInfo['dates'] = $this->getSprintDates($sprintInfo);
 
     // Load Tickets
-    $sprintInfo['tickets'] = $this->getSprintTickets($sprintInfo);
+    //$sprintInfo['tickets'] = $this->getSprintTickets($sprintInfo);
 
     // Load Issues
-    $sprintInfo['issues'] = $this->getSprintIssues($sprintInfo);
+    //$sprintInfo['issues'] = $this->getSprintIssues($sprintInfo);
 
     /**** Finished! ****/
     $this->sprintInfo = $sprintInfo;

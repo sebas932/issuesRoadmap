@@ -17,7 +17,7 @@ class ZenhubService {
   // Get the data for a specific issue.
   public function getIssueData($repoID, $issueNumber){
     $data = $this->zenhubRequest('/repositories/'.$repoID.'/issues/'.$issueNumber);
-    if(isset($data['pipeline']['name'])){
+    if(!isset($data['pipeline']['name'])){
       $data['pipeline']['name'] = "Closed";
     }
     return $data;
