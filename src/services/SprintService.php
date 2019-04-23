@@ -41,9 +41,7 @@ class SprintService {
     // Load Issues
     //$sprintInfo['issues'] = $this->getSprintIssues($sprintInfo);
 
-    /**** Finished! ****/
-    $this->sprintInfo = $sprintInfo;
-    return $this->sprintInfo;
+    return $sprintInfo;
   }
 
   public function getSprintRepository(){
