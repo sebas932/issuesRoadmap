@@ -20,6 +20,9 @@ class ZenhubService {
     if(!isset($data['pipeline']['name'])){
       $data['pipeline']['name'] = "Closed";
     }
+    if(!isset($data['estimate']['value'])){
+      $data['estimate']['value'] = 0;
+    }
     return $data;
   }
 

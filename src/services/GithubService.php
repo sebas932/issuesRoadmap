@@ -38,6 +38,8 @@ class GithubService {
     } while ($stopRequest == false);
 
     foreach ($allIssues as $i => $issue) {
+      $allIssues[$i]['priority'] = $this->utils->getLabelValue($issue['labels'], "Priority");
+      $allIssues[$i]['type'] = $this->utils->getLabelValue($issue['labels'], "Type");
       $allIssues[$i]['assignee']['acronym'] = $this->utils->getAcronyms($issue['assignee']['login']);
       // Assignees
       $assignees = array();

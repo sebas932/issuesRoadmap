@@ -76,12 +76,6 @@ $app->get('/{organization}/{repo}', function ($request, $response, $args) {
   foreach ($allIssues as $issue) {
       $issueEstimate = 1;
 
-      $issue['priority'] = $utils->getLabelValue($issue['labels'], "Priority");
-      $issue['type'] = $utils->getLabelValue($issue['labels'], "Type");
-
-
-      $issue['isNew'] = ($milestoneInfo['dates']['start_date'] < $issue['created_at']);
-
       if($zenhubActive){
         // Getting Zenhub data
         $issue['zenhub'] = $zenhubService->getIssueData($repoInfo['id'], $issue['number']);

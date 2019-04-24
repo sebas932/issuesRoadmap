@@ -13,7 +13,7 @@ $app->add(function ($req, $res, $next) {
     ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
-$app->get('/api/{organization}/{repo}/milestones', function ($request, $response, $args) {
+$app->get('/api/{organization}/{repo}/sprints', function ($request, $response, $args) {
   // Managers
   $githubService = new \services\GithubService();
   // URL Parameters
@@ -23,11 +23,11 @@ $app->get('/api/{organization}/{repo}/milestones', function ($request, $response
   $state = $request->getQueryParam('state');
   $state = (isset($state)? $state : "open");
 
-  $milestones = $githubService->getMilestones($org, $repo, $state);
+  $sprints = $githubService->getMilestones($org, $repo, $state);
 
   return $response->withStatus(200)
         ->withHeader('Content-Type', 'application/json; charset=utf-8')
-        ->write(json_encode($milestones));
+        ->write(json_encode($sprints));
 });
 
 
@@ -43,6 +43,52 @@ $app->get('/api/{organization}/{repo}/sprint/{milestoneID}', function ($request,
   // Managers
   $sprintService = new \services\SprintService($org, $repo);
   $sprint = $sprintService->getSprint($milestoneID);
+
+  $endTime = new DateTime();
+  $diffTime = $endTime->diff($startTime);
+  $output['loadTime'] = $diffTime->format('%h:%i:%s');
+  $output['result'] = $sprint;
+
+  return $response->withStatus(200)
+        ->withHeader('Content-Type', 'application/json; charset=utf-8')
+        ->write(json_encode($output));
+});
+
+$app->get('/api/{organization}/{repo}/sprint/{milestoneID}/issues', function ($request, $response, $args) {
+  ini_set('max_execution_time', 600);
+  $startTime = new DateTime();
+
+  // URL Parameters
+  $org = $request->getAttribute('organization');
+  $repo = $request->getAttribute('repo');
+  $milestoneID = $request->getAttribute('milestoneID');
+
+  // Managers
+  $sprintService = new \services\SprintService($org, $repo);
+  $sprint = $sprintService->getIssues($milestoneID);
+
+  $endTime = new DateTime();
+  $diffTime = $endTime->diff($startTime);
+  $output['loadTime'] = $diffTime->format('%h:%i:%s');
+  $output['result'] = $sprint;
+
+  return $response->withStatus(200)
+        ->withHeader('Content-Type', 'application/json; charset=utf-8')
+        ->write(json_encode($output));
+});
+
+$app->get('/api/{organization}/{repo}/sprint/{milestoneID}/tickets', function ($request, $response, $args) {
+  ini_set('max_execution_time', 600);
+  $startTime = new DateTime();
+
+  // URL Parameters
+  $org = $request->getAttribute('organization');
+  $repo = $request->getAttribute('repo');
+  $milestoneID = $request->getAttribute('milestoneID');
+
+  // Managers
+  $sprintService = new \services\SprintService($org, $repo);
+  $sprint = $sprintService->getTickets($milestoneID);
 
   $endTime = new DateTime();
   $diffTime = $endTime->diff($startTime);
