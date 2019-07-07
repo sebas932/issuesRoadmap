@@ -6,12 +6,28 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });
 $app->add(function ($req, $res, $next) {
+    error_reporting( error_reporting() & ~E_NOTICE );
     $response = $next($req, $res);
     return $response
     ->withHeader('Access-Control-Allow-Origin', '*')
     ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
     ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
+
+$app->get('/api/{organization}/{repo}/repo', function ($request, $response, $args) {
+  // Managers
+  $githubService = new \services\GithubService();
+  // URL Parameters
+  $org = $request->getAttribute('organization');
+  $repo = $request->getAttribute('repo');
+
+  $repo = $githubService->getRepository($org, $repo);
+
+  return $response->withStatus(200)
+        ->withHeader('Content-Type', 'application/json; charset=utf-8')
+        ->write(json_encode($repo));
+});
+
 
 $app->get('/api/{organization}/{repo}/sprints', function ($request, $response, $args) {
   // Managers
