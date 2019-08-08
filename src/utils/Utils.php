@@ -18,6 +18,8 @@ class Utils {
         $users['anamp07'] = 'AP';
         $users['carios1usb'] = 'CR';
         $users['MargaritaRamirez'] = 'MR';
+        $users['danipilze'] = 'DA';
+        $users['yeyo2k3'] = 'DP';
 
         $acronym = $users[$s];
 
