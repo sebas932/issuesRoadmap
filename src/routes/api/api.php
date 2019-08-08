@@ -5,6 +5,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });
+
 $app->add(function ($req, $res, $next) {
     error_reporting( error_reporting() & ~E_NOTICE );
     $response = $next($req, $res);
@@ -110,6 +111,48 @@ $app->get('/api/{organization}/{repo}/sprint/{milestoneID}/tickets', function ($
   $diffTime = $endTime->diff($startTime);
   $output['loadTime'] = $diffTime->format('%h:%i:%s');
   $output['result'] = $sprint;
+
+  return $response->withStatus(200)
+        ->withHeader('Content-Type', 'application/json; charset=utf-8')
+        ->write(json_encode($output));
+});
+
+$app->get('/api/proxy/', function ($request, $response, $args) {
+  ini_set('max_execution_time', 600);
+  $startTime = new DateTime();
+
+  // URL Parameters
+  $url = $request->getQueryParam('url');
+
+  // Managers
+  $clarisaService = new \services\ClarisaProxyService();
+  $result = $clarisaService->getQuery($url);
+
+  $endTime = new DateTime();
+  $diffTime = $endTime->diff($startTime);
+  $output['loadTime'] = $diffTime->format('%h:%i:%s');
+  $output['result'] = $result;
+
+  return $response->withStatus(200)
+        ->withHeader('Content-Type', 'application/json; charset=utf-8')
+        ->write(json_encode($output));
+});
+
+$app->post('/api/proxy/', function ($request, $response, $args) {
+  ini_set('max_execution_time', 600);
+  $startTime = new DateTime();
+
+  // URL Parameters
+  $url = $request->getQueryParam('url');
+
+  // Managers
+  $clarisaService = new \services\ClarisaProxyService();
+  $result = $clarisaService->getQuery($url);
+
+  $endTime = new DateTime();
+  $diffTime = $endTime->diff($startTime);
+  $output['loadTime'] = $diffTime->format('%h:%i:%s');
+  $output['result'] = $result;
 
   return $response->withStatus(200)
         ->withHeader('Content-Type', 'application/json; charset=utf-8')
