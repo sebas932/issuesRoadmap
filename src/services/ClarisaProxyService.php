@@ -14,14 +14,13 @@ class ClarisaProxyService {
 
   // Github REST API
   private function singleRequest($url){
-    $access = 'marlosadmin:6723646';
     $fetchURL = $url;
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $fetchURL);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Agent smith');
     curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_USERPWD, $access);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Basic bWFybG9zYWRtaW46NjcyMzY0Ng=='));
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
