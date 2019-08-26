@@ -117,7 +117,7 @@ $app->get('/api/{organization}/{repo}/sprint/{milestoneID}/tickets', function ($
         ->write(json_encode($output));
 });
 
-$app->get('/api/proxy/', function ($request, $response, $args) {
+$app->get('/api/clarisa/getProxy', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
   $startTime = new DateTime();
 
@@ -138,16 +138,19 @@ $app->get('/api/proxy/', function ($request, $response, $args) {
         ->write(json_encode($output));
 });
 
-$app->post('/api/proxy/', function ($request, $response, $args) {
+$app->post('/api/clarisa/postProxy', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
   $startTime = new DateTime();
 
   // URL Parameters
   $url = $request->getQueryParam('url');
+  $data = $request->getParsedBody();
+  //print_r($result);
 
   // Managers
   $clarisaService = new \services\ClarisaProxyService();
-  $result = $clarisaService->getQuery($url);
+  $result = $clarisaService->postQuery($url, $data);
+  
 
   $endTime = new DateTime();
   $diffTime = $endTime->diff($startTime);
