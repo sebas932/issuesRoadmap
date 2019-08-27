@@ -9,10 +9,13 @@ class ClarisaProxyService {
 
   // Get Repository
   public function getQuery($url){
+    $url = urldecode($url);
     return $this->getRequest($url);
   }
 
   public function postQuery($url, $data){
+    $url = urldecode($url);
+
     $payload = json_encode($data);
     // Prepare new cURL resource
     $ch = curl_init($url);
@@ -30,6 +33,19 @@ class ClarisaProxyService {
     // Submit the POST request
     $result = curl_exec($ch);
     // Close cURL session handle
+    curl_close($ch);
+    return $result;
+  }
+
+  public function deleteQuery($url){
+    $url = urldecode($url);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Basic bWFybG9zYWRtaW46NjcyMzY0Ng=='));
+    $result = curl_exec($ch);
+    $result = json_decode($result);
     curl_close($ch);
     return $result;
   }
