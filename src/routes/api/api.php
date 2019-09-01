@@ -162,6 +162,30 @@ $app->post('/api/clarisa/postProxy', function ($request, $response, $args) {
         ->write(json_encode($output));
 });
 
+$app->put('/api/clarisa/putProxy', function ($request, $response, $args) {
+  ini_set('max_execution_time', 600);
+  $startTime = new DateTime();
+
+  // URL Parameters
+  $url = $request->getQueryParam('url');
+  $data = $request->getParsedBody();
+  //print_r($result);
+
+  // Managers
+  $clarisaService = new \services\ClarisaProxyService();
+  $result = $clarisaService->putQuery($url, $data);
+
+
+  $endTime = new DateTime();
+  $diffTime = $endTime->diff($startTime);
+  $output['loadTime'] = $diffTime->format('%h:%i:%s');
+  $output['result'] = $result;
+
+  return $response->withStatus(200)
+        ->withHeader('Content-Type', 'application/json; charset=utf-8')
+        ->write(json_encode($output));
+});
+
 $app->delete('/api/clarisa/deleteProxy', function ($request, $response, $args) {
   ini_set('max_execution_time', 600);
   $startTime = new DateTime();

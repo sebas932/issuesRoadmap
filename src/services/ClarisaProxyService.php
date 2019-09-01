@@ -37,6 +37,31 @@ class ClarisaProxyService {
     return $result;
   }
 
+  public function putQuery($url, $data){
+    $url = urldecode($url);
+    $payload = json_encode($data);
+
+    //Initiate cURL
+    $ch = curl_init($url);
+    //Use the CURLOPT_PUT option to tell cURL that
+    curl_setopt($ch, CURLOPT_PUT, true);
+    //We want the result / output returned.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    // Set HTTP Header for POST request
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+      'Content-Type: application/json',
+      'Authorization: Basic bWFybG9zYWRtaW46NjcyMzY0Ng==',
+      'Content-Length: ' . strlen($payload))
+    );
+    //Our fields.
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+    //Execute the request.
+    $result = curl_exec($ch);
+
+    return $result;
+  }
+
   public function deleteQuery($url){
     $url = urldecode($url);
     $ch = curl_init();
